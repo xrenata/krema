@@ -2,7 +2,7 @@
 Client model for krema.
 """
 
-import asyncio
+from typing import Callable
 
 
 class Client:
@@ -21,7 +21,7 @@ class Client:
         self.events: list = []
 
         self.connection = None
-        """Connection object for manage websocket."""
+        self.http = None
 
         pass
 
@@ -38,6 +38,19 @@ class Client:
         else:
             return self.token
 
+    def event(self, event_name: str):
+        def decorator(fn):
+            def wrapper():
+                self.events.append(
+                    (event_name, fn)
+                )
+
+                return self.events
+
+            return wrapper()
+
+        return decorator
+
     def start(self, token: str, bot: bool = True):
         """Start the client.
 
@@ -47,8 +60,12 @@ class Client:
         """
 
         from ..gateway import Gateway
+        from ..http import HTTP
 
         self.token = f"Bot {token}" if bot else token
-        self.connection = Gateway(self)
 
-        asyncio.run(self.connection.start_connection())
+        self.connection = Gateway(self)
+        self.http = HTTP(self)
+
+        self.connection._event_loop.run_until_complete(
+            self.connection.start_connection())

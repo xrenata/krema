@@ -41,7 +41,8 @@ class Gateway:
         self._buffer: bytearray = bytearray()
         self._zlib = decompressobj()
         self._session: aiohttp.ClientSession = None
-        self._event_loop = asyncio.new_event_loop()
+
+        self._event_loop = asyncio.get_event_loop()
 
     async def __connect(self):
         """Start WebSocket connection."""
@@ -59,6 +60,15 @@ class Gateway:
         """Handle Packets."""
 
         data = packet.data
+
+        if isinstance(packet.data, int) and len(str(packet.data)) == 4:
+            print("WebSocket Exception Found: {0} ({1})".format(
+                packet.data, packet.extra))
+            return
+        elif isinstance(packet.data, type(None)):
+            if packet.type == 0x101:
+                return 0x0
+
         if len(data) < 4 or data[-4:] != b'\x00\x00\xff\xff':
             return
 
@@ -68,13 +78,34 @@ class Gateway:
 
         self._buffer = bytearray()
 
-        opcode, data, seq = message.get(
-            "op"), message.get("d"), message.get("s")
+        opcode, data, seq, event_type = message.get(
+            "op"), message.get("d"), message.get("s"), message.get("t")
         if opcode == self.HELLO:
             interval = data["heartbeat_interval"]
             await self.__identify(interval)
         elif opcode == self.DISPATCH:
-            print(message, 1)
+            if event_type in (i[0] for i in self.client.events):
+                self._event_loop.create_task(
+                    self.__handle_event(data, event_type))
+                print(message, 1)
+
+    async def __handle_event(self, event_data, event_type):
+        filters = {
+            "READY": (event_data, ),
+            "MESSAGE_CREATE": (event_data, )
+        }
+
+        if event_type in filters.keys():
+            filtered = self.__filter_events(event_type, filters[event_type])
+        else:
+            filtered = self.__filter_events(event_type, (event_data, ))
+
+        await asyncio.gather(*filtered)
+
+    def __filter_events(self, event_type, args):
+        return [
+            i[1](*args) for i in self.client.events if i[0] == event_type
+        ]
 
     async def __identify(self, interval):
         """Identify the Bot."""
@@ -100,7 +131,8 @@ class Gateway:
             payload["d"]["intents"] = self.client.intents
 
         await self.websocket.send_json(payload)
-        self._event_loop.create_task(self.__send_heartbeat(interval))
+        asyncio.run_coroutine_threadsafe(
+            self.__send_heartbeat(interval), self._event_loop)
 
     async def __send_heartbeat(self, interval):
         """Send hearbeat to the WebSocket."""
@@ -112,7 +144,7 @@ class Gateway:
                     "d": None
                 })
 
-                await asyncio.sleep(interval)
+                await asyncio.sleep(interval // 1000)
 
     async def start_connection(self):
         """Start the Gateway Connection."""
