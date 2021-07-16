@@ -5,7 +5,7 @@ Gateway part of the krema.
 import asyncio
 import aiohttp
 from zlib import decompressobj
-from json import loads, dumps
+from json import loads
 
 
 class Gateway:
@@ -14,23 +14,23 @@ class Gateway:
     Args:
         client (krema.models.Client): Client class for gateway connection.
     """
-    DISPATCH = 0
-    HEARTBEAT = 1
-    IDENTIFY = 2
-    PRESENCE = 3
-    VOICE_STATE = 4
-    VOICE_PING = 5
-    RESUME = 6
-    RECONNECT = 7
-    REQUEST_MEMBERS = 8
-    INVALID_SESSION = 9
-    HELLO = 10
-    HEARTBEAT_ACK = 11
-    GUILD_SYNC = 12
+
+    DISPATCH: int = 0
+    HEARTBEAT: int = 1
+    IDENTIFY: int = 2
+    PRESENCE: int = 3
+    VOICE_STATE: int = 4
+    VOICE_PING: int = 5
+    RESUME: int = 6
+    RECONNECT: int = 7
+    REQUEST_MEMBERS: int = 8
+    INVALID_SESSION: int = 9
+    HELLO: int = 10
+    HEARTBEAT_ACK: int = 11
+    GUILD_SYNC: int = 12
 
     def __init__(self, client) -> None:
         from .models.client import Client
-        from typing import Coroutine
 
         self.client: Client = client
         self.token: str = self.client.formatted_token
@@ -56,6 +56,8 @@ class Gateway:
             await self.__handle_packet(await self.websocket.receive())
 
     async def __handle_packet(self, packet):
+        """Handle Packets."""
+
         data = packet.data
         if len(data) < 4 or data[-4:] != b'\x00\x00\xff\xff':
             return
@@ -75,6 +77,8 @@ class Gateway:
             print(message, 1)
 
     async def __identify(self, interval):
+        """Identify the Bot."""
+
         payload = {
             "op": self.IDENTIFY,
             "d": {
@@ -99,6 +103,8 @@ class Gateway:
         self._event_loop.create_task(self.__send_heartbeat(interval))
 
     async def __send_heartbeat(self, interval):
+        """Send hearbeat to the WebSocket."""
+
         while True:
             if self.websocket is not None:
                 await self.websocket.send_json({
@@ -109,5 +115,7 @@ class Gateway:
                 await asyncio.sleep(interval)
 
     async def start_connection(self):
+        """Start the Gateway Connection."""
+
         await self.__connect()
         await self.__receiver()

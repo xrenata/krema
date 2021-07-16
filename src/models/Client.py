@@ -45,7 +45,7 @@ class Client:
 
         from ..gateway import Gateway
 
-        self.token = token if bot else f"Bot {token}"
+        self.token = f"Bot {token}" if bot else token
         connection = Gateway(self)
 
         asyncio.run(connection.start_connection())
