@@ -71,12 +71,21 @@ class Message:
         self.reactions: Union[list, None] = data.get("reactions")
         self.nonce: Union[int, str, None] = data.get("nonce")
         self.pinned: bool = data.get("pinned")
-        self.webhook_id: Union[int, None] = int(data.get("webhook_id")) if data.get("webhook_id") else None
+        self.webhook_id: Union[int, None] = int(
+            data.get("webhook_id")) if data.get("webhook_id") else None
         self.type: int = data.get("type")
         self.activity: Union[dict, None] = data.get("activity")
         self.application: Union[dict, None] = data.get("application")
-        self.application_id: Union[int, None] = int(data.get("application_id")) if data.get("application_id") else None
-        self.message_reference: Union[dict, None] = data.get("message_reference")
+        self.application_id: Union[int, None] = int(
+            data.get("application_id")) if data.get("application_id") else None
+        self.message_reference: Union[dict,
+                                      None] = data.get("message_reference")
         self.flags: Union[int, None] = data.get("flags")
         self.interaction: Union[dict, None] = data.get("interaction")
+
+        # TODO: Create Channel Class for This:
         self.thread: Union[dict, None] = data.get("thread")
+
+        self.components: Union[list, None] = data.get("components")
+        self.sticker_items: Union[list, None] = data.get("sticker_items")
+        self.stickers: Union[list, None] = data.get("stickers")
