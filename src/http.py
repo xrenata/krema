@@ -35,9 +35,6 @@ class HTTP:
                 Atom (1): Request failed.
         """
 
-        if params is None:
-            params = {}
-
         result: tuple = ()
 
         async with aiohttp.ClientSession() as session:
