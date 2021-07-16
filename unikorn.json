@@ -2,6 +2,6 @@
     "name": "krema",
     "description": "A fast, flexible and lightweight Discord API wrapper for Python.",
     "tags": ["krema", "discord", "api", "wrapper"],
-    "pipreq": ["trio", "trio-websocket"],
+    "pipreq": ["aiohttp"],
     "unireq": [["kremayard", "kollektor"]]
 }

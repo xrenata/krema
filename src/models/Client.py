@@ -2,9 +2,8 @@
 Client model for krema.
 """
 
-from dataclasses import dataclass
-from typing import Optional, Union
-import trio
+import asyncio
+
 
 class Client:
     """Base class for client.
@@ -26,7 +25,7 @@ class Client:
     @property
     def formatted_token(self) -> str:
         """Returns formatted version of the token.
-        
+
         Returns:
             str: Formatted version of the token.
         """
@@ -48,5 +47,5 @@ class Client:
 
         self.token = token if bot else f"Bot {token}"
         connection = Gateway(self)
-        
-        trio.run(connection.start_connection)
+
+        asyncio.run(connection.start_connection())

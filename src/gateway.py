@@ -2,8 +2,8 @@
 Gateway part of the krema.
 """
 
-import trio
-from trio_websocket import open_websocket_url
+import asyncio
+import aiohttp
 from zlib import decompressobj
 from json import loads, dumps
 
@@ -36,41 +36,45 @@ class Gateway:
         self.token: str = self.client.formatted_token
 
         self.gateway: str = "wss://gateway.discord.gg/?v=9&encoding=json&compress=zlib-stream"
-        self.websocket: Coroutine = None
+        self.websocket: aiohttp._WSRequestContextManager = None
 
         self._buffer: bytearray = bytearray()
         self._zlib = decompressobj()
+        self._session: aiohttp.ClientSession = None
+        self._event_loop = asyncio.new_event_loop()
 
     async def __connect(self):
         """Start WebSocket connection."""
 
-        async with open_websocket_url(self.gateway) as ws:
-            self.websocket = ws
-            await self.__receiver()
+        self._session = aiohttp.ClientSession()
+        self.websocket = await self._session.ws_connect(self.gateway)
 
     async def __receiver(self):
         """Receive messages from WebSocket."""
 
         while True:
-            await self.__handle_packet(await self.websocket.get_message())
+            await self.__handle_packet(await self.websocket.receive())
 
     async def __handle_packet(self, packet):
-        if len(packet) < 4 or packet[-4:] != b'\x00\x00\xff\xff':
+        data = packet.data
+        if len(data) < 4 or data[-4:] != b'\x00\x00\xff\xff':
             return
 
-        self._buffer.extend(packet)
+        self._buffer.extend(data)
         message = self._zlib.decompress(self._buffer).decode("utf-8")
         message = loads(message)
 
-        print(message)
-
         self._buffer = bytearray()
 
-        opcode, data, seq = message.get("op"), message.get("d"), message.get("s")
+        opcode, data, seq = message.get(
+            "op"), message.get("d"), message.get("s")
         if opcode == self.HELLO:
-            await self.__identify()
+            interval = data["heartbeat_interval"]
+            await self.__identify(interval)
+        elif opcode == self.DISPATCH:
+            print(message, 1)
 
-    async def __identify(self):
+    async def __identify(self, interval):
         payload = {
             "op": self.IDENTIFY,
             "d": {
@@ -91,7 +95,19 @@ class Gateway:
         if self.client.intents != 0:
             payload["d"]["intents"] = self.client.intents
 
-        await self.websocket.send_message(dumps(payload))
+        await self.websocket.send_json(payload)
+        self._event_loop.create_task(self.__send_heartbeat(interval))
+
+    async def __send_heartbeat(self, interval):
+        while True:
+            if self.websocket is not None:
+                await self.websocket.send_json({
+                    "op": self.HEARTBEAT,
+                    "d": None
+                })
+
+                await asyncio.sleep(interval)
 
     async def start_connection(self):
         await self.__connect()
+        await self.__receiver()
