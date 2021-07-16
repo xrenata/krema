@@ -91,13 +91,10 @@ class Gateway:
                 print(message, 1)
 
     async def __handle_event(self, event_data, event_type):
-        filters = {
-            "ready": (event_data, ),
-            "message_create": (event_data, )
-        }
+        from .models.message import Message
 
-        if event_type in filters.keys():
-            filtered = self.__filter_events(event_type, filters[event_type])
+        if event_type in ("message_create", ):
+            filtered = self.__filter_events(event_type, (Message(self.client, event_data), ))
         else:
             filtered = self.__filter_events(event_type, (event_data, ))
 
