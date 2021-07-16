@@ -8,8 +8,8 @@
 <div align="left">
 
 - [x] Add Gateway Support
-- [ ] Add HTTP Support
-- [ ] Add Event Handler
+- [X] Add HTTP Support
+- [X] Add Event Handler
 - [ ] Add Cache System
 - [ ] Add Models
 

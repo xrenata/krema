@@ -2,8 +2,6 @@
 Client model for krema.
 """
 
-from typing import Callable
-
 
 class Client:
     """Base class for client.
@@ -38,11 +36,11 @@ class Client:
         else:
             return self.token
 
-    def event(self, event_name: str):
+    def event(self, event_name: str = None):
         def decorator(fn):
             def wrapper():
                 self.events.append(
-                    (event_name, fn)
+                    (event_name or fn.__name__, fn)
                 )
 
                 return self.events

@@ -84,6 +84,7 @@ class Gateway:
             interval = data["heartbeat_interval"]
             await self.__identify(interval)
         elif opcode == self.DISPATCH:
+            event_type = event_type.lower()
             if event_type in (i[0] for i in self.client.events):
                 self._event_loop.create_task(
                     self.__handle_event(data, event_type))
@@ -91,8 +92,8 @@ class Gateway:
 
     async def __handle_event(self, event_data, event_type):
         filters = {
-            "READY": (event_data, ),
-            "MESSAGE_CREATE": (event_data, )
+            "ready": (event_data, ),
+            "message_create": (event_data, )
         }
 
         if event_type in filters.keys():
