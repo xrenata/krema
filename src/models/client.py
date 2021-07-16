@@ -37,6 +37,13 @@ class Client:
             return self.token
 
     def event(self, event_name: str = None):
+        """Event decorator for handle gateway events.
+
+        Args:
+            event_name (str, optional): Event name in lowercase. Example MESSAGE_CREATE is message_create for krema. If you don't add this argument, It will get the name from function name.
+
+        """
+
         def decorator(fn):
             def wrapper():
                 self.events.append(
