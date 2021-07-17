@@ -9,6 +9,8 @@ class Channel:
         from .user import User, ThreadMember
         from ..utils import convert_iso
 
+        self.client = client
+
         self.id: int = int(data.get("id"))
         self.type: int = data.get("type")
         self.guild_id: Union[int, None] = int(
