@@ -125,6 +125,7 @@ class Message:
     def __init__(self, client, data: dict) -> None:
         from ..utils import convert_iso
         from .user import User, Member
+        from .guild import Channel
 
         self.client = client
 
@@ -165,8 +166,8 @@ class Message:
         self.flags: Union[int, None] = data.get("flags")
         self.interaction: Union[dict, None] = data.get("interaction")
 
-        # TODO: Create Channel Class for This:
-        self.thread: Union[dict, None] = data.get("thread")
+        self.thread: Union[Channel, None] = Channel(
+            data.get("thread")) if data.get("thread") else None
 
         self.components: Union[list, None] = data.get("components")
         self.sticker_items: Union[list, None] = data.get("sticker_items")

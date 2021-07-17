@@ -86,3 +86,17 @@ class Member:
             data.get("premium_since")) if data.get("premium_since") else None
         self.deaf: bool = data.get("deaf")
         self.mute: bool = data.get("mute")
+
+
+@dataclass
+class ThreadMember:
+    def __init__(self, data: dict) -> None:
+        from ..utils import convert_iso
+
+        self.id: Union[int, None] = int(
+            data.get("id")) if data.get("id") else None
+        self.user_id: Union[int, None] = int(
+            data.get("user_id")) if data.get("user_id") else None
+        self.join_timestamp: Union[int, None] = convert_iso(
+            data.get("join_timestamp")) if data.get("join_timestamp") else None
+        self.flags: int = data.get("flags")
