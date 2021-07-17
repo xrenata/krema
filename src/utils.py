@@ -1,3 +1,7 @@
+"""
+Utils part of the krema.
+"""
+
 from datetime import datetime
 
 
