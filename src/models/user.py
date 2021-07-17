@@ -90,6 +90,18 @@ class Member:
 
 @dataclass
 class ThreadMember:
+    """Thread-member class.
+
+    Args:
+        data (dict): Sent packed from websocket.
+
+    Attributes:
+        id (int, None): The ID of the thread.
+        user_id (int, None): The ID of the user.
+        join_timestamp (datetime, None): "The time the current user last joined the thread".
+        flags (int): "Any user-thread settings, currently only used for notifications".
+    """
+
     def __init__(self, data: dict) -> None:
         from ..utils import convert_iso
 
