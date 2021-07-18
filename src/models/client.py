@@ -3,6 +3,7 @@ Client model for krema.
 """
 
 from unikorn import kollektor
+from ..errors import *
 
 
 class Client:
@@ -98,11 +99,16 @@ class Client:
         async def _message_delete(packet):
             message_id = packet.get("id")
 
-            for message in self.messages.items:
-                if str(message.id) == message_id:
-                    self.messages.items = tuple(
-                        i for i in self.messages.items if i.id != message.id)
-                    break
+            if message_id is None:
+                return
+            else:
+                message_id = int(message_id)
+
+                for message in self.messages.items:
+                    if message.id == message_id:
+                        self.messages.items = tuple(
+                            i for i in self.messages.items if i.id != message.id)
+                        break
 
         event_list: dict = {
             "message_create": _message_create,
@@ -114,3 +120,31 @@ class Client:
         self.events.extend(
             (key, value) for key, value in event_list.items()
         )
+
+    # Endpoint Functions
+    # ==================
+
+    async def send_message(self, id: int, **kwargs):
+        """Send message to the text-channel.
+
+        Args:
+            id (int): Channel ID.
+            **kwargs: https://discord.com/developers/docs/resources/channel#create-message-jsonform-params
+
+        Returns:
+            Message: Sent message object.
+
+        Raises:
+            SendMessageFailed: Sending the message is failed.
+        """
+
+        from .message import Message
+
+        atom, result = await self.http.request("POST", f"/channels/{id}/messages", kwargs)
+
+        print(kwargs, id)
+
+        if atom == 0:
+            return Message(self, result)
+        else:
+            raise SendMessageFailed(result)

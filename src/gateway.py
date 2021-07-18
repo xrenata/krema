@@ -86,9 +86,11 @@ class Gateway:
 
         opcode, data, seq, event_type = message.get(
             "op"), message.get("d"), message.get("s"), message.get("t")
+
         if opcode == self.HELLO:
             interval = data["heartbeat_interval"]
             await self.__identify(interval)
+
         elif opcode == self.DISPATCH:
             event_type = event_type.lower()
             if event_type in (i[0] for i in self.client.events):
@@ -121,14 +123,13 @@ class Gateway:
                 "token": self.token,
                 "properties": {
                     "$os": "linux",
-                    "$browser": "kream",
-                    "$device": "kream",
+                    "$browser": "krema",
+                    "$device": "krema",
                     "$referrer": "",
                     "$referring_domain": ""
                 },
                 "compress": True,
-                "large_threshold": 250,
-                "v": 3
+                "large_threshold": 250
             }
         }
 

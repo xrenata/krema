@@ -2,7 +2,8 @@
 Http part of the krema.
 """
 
-from typing import Union
+import asyncio
+from typing import Any, Union
 import aiohttp
 
 
@@ -31,7 +32,9 @@ class HTTP:
 
         Returns:
             tuple: A tuple that contains an atom and result.
+                
                 Atom (0): Request successfully sent and got 2xx.
+                
                 Atom (1): Request failed.
         """
 
@@ -44,16 +47,25 @@ class HTTP:
                 except aiohttp.client_exceptions.ContentTypeError:
                     body_text = await response.text()
 
-                    if str(response.status).startswith("2"):
+                    if response.status >= 200 and response.status < 300:
                         result = (0, "")
                     else:
                         result = (1, body_text)
 
                     return result
 
-                if str(response.status).startswith("2"):
-                    result = (1, json_data)
-                else:
+                if response.status >= 200 and response.status < 300:
                     result = (0, json_data)
+                    return result
+                else:
+                    retry_after = json_data.get("retry_after")
 
-                return result
+                    if retry_after is not None:
+                        return await self.__run_task_when_ratelimit_reset(retry_after, method, endpoint, params)
+                    else:
+                        result = (1, json_data.get("message") or json_data)
+                        return result
+
+    async def __run_task_when_ratelimit_reset(self, ratelimit: float, method, endpoint, params):
+        await asyncio.sleep(ratelimit + 0.1)
+        return await self.request(method, endpoint, params)
