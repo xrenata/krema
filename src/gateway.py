@@ -96,7 +96,8 @@ class Gateway:
             if event_type in (i[0] for i in self.client.events):
                 self._event_loop.create_task(
                     self.__handle_event(data, event_type))
-                print(message, 1)
+                
+                # print(message, end="\n\n")
 
     async def __handle_event(self, event_data, event_type):
         from .models.message import Message

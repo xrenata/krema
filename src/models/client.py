@@ -123,18 +123,18 @@ class Client:
 
     # Gateway Function
     # ==================
+
     async def update_presence(self, packet: dict):
         """Update client-user presence.
 
         Args:
             packet (dict): https://discord.com/developers/docs/topics/gateway#update-presence-gateway-presence-update-structure
-        
         """
+
         await self.connection.websocket.send_json({
             "op": 3,
             "d": packet
         })
-
 
     # Endpoint Functions
     # ==================
@@ -157,9 +157,29 @@ class Client:
 
         atom, result = await self.http.request("POST", f"/channels/{id}/messages", kwargs)
 
-        print(kwargs, id)
-
         if atom == 0:
             return Message(self, result)
         else:
             raise SendMessageFailed(result)
+
+    async def fetch_channel(self, id: int):
+        """Fetch a channel by ID.
+
+        Args:
+            id (int): Channel ID.
+
+        Returns:
+            Channel: Found channel.
+
+        Raises:
+            FetchChannelFailed: Fetching the channel is failed.
+        """
+
+        from .guild import Channel
+
+        atom, result = await self.http.request("GET", f"/channels/{id}")
+
+        if atom == 0:
+            return Channel(self,  result)
+        else:
+            raise FetchChannelFailed(result)
