@@ -2,6 +2,8 @@
 Client model for krema.
 """
 
+from unikorn import kollektor
+
 
 class Client:
     """Base class for client.
@@ -18,8 +20,12 @@ class Client:
         self.token: str = ""
         self.events: list = []
 
+        self.messages: kollektor.Kollektor = kollektor.Kollektor()
+
         self.connection = None
         self.http = None
+
+        self.__add_cache_events()
 
         pass
 
@@ -74,3 +80,37 @@ class Client:
 
         self.connection._event_loop.run_until_complete(
             self.connection.start_connection())
+
+    # Handler for Cache Events.
+    def __add_cache_events(self):
+        # Message Add Handler
+        async def _message_create(message_packet):
+            self.messages.append(message_packet)
+
+        # Message Update Handler
+        async def _message_update(message_packet):
+            for index, message in enumerate(self.messages.items):
+                if message.id == message_packet.id:
+                    self.messages.update(index, message_packet)
+                    break
+
+        # Message Delete Handler
+        async def _message_delete(packet):
+            message_id = packet.get("id")
+
+            for message in self.messages.items:
+                if str(message.id) == message_id:
+                    self.messages.items = tuple(
+                        i for i in self.messages.items if i.id != message.id)
+                    break
+
+        event_list: dict = {
+            "message_create": _message_create,
+            "message_update": _message_update,
+            "message_delete": _message_delete
+        }
+
+        # Load Events
+        self.events.extend(
+            (key, value) for key, value in event_list.items()
+        )
