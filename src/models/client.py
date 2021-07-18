@@ -121,6 +121,15 @@ class Client:
             (key, value) for key, value in event_list.items()
         )
 
+    # Gateway Function
+    # ==================
+    async def update_presence(self, packet: dict):
+        await self.connection.websocket.send_json({
+            "op": 3,
+            "d": packet
+        })
+
+
     # Endpoint Functions
     # ==================
 
