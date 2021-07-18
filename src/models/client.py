@@ -124,6 +124,12 @@ class Client:
     # Gateway Function
     # ==================
     async def update_presence(self, packet: dict):
+        """Update client-user presence.
+
+        Args:
+            packet (dict): https://discord.com/developers/docs/topics/gateway#update-presence-gateway-presence-update-structure
+        
+        """
         await self.connection.websocket.send_json({
             "op": 3,
             "d": packet
