@@ -62,9 +62,15 @@ class Gateway:
         data = packet.data
 
         if isinstance(packet.data, int) and len(str(packet.data)) == 4:
-            print("WebSocket Exception Found: {0} ({1})".format(
-                packet.data, packet.extra))
-            return
+            # Reconnect Websocket
+            if packet.data == 1001:
+                self._session.close()
+                self._session = None
+                return 1
+            else:
+                print("WebSocket Exception Found: {0} ({1})".format(
+                    packet.data, packet.extra))
+                return 0
         elif isinstance(packet.data, type(None)):
             if packet.type == 0x101:
                 return 0x0
@@ -149,4 +155,8 @@ class Gateway:
         """Start the Gateway Connection."""
 
         await self.__connect()
-        await self.__receiver()
+        result = await self.__receiver()
+
+        # Reconnect Websocket
+        if result == 1:
+            self.start_connection()
