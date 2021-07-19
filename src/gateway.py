@@ -97,7 +97,7 @@ class Gateway:
                 self._event_loop.create_task(
                     self.__handle_event(data, event_type))
                 
-                # print(message, end="\n\n")
+            print(message, end="\n\n")
 
     async def __handle_event(self, event_data, event_type):
         from .models.message import Message

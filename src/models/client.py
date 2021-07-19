@@ -110,10 +110,22 @@ class Client:
                             i for i in self.messages.items if i.id != message.id)
                         break
 
+        # Message Bulk Delete Handler
+        async def _message_bulk_delete(packet):
+            message_ids = packet.get("ids")
+
+            if message_ids is None:
+                return
+            else:
+                message_ids = tuple(int(i) for i in message_ids)
+                self.messages.items = tuple(
+                    i for i in self.messages.items if i.id not in message_ids)
+
         event_list: dict = {
             "message_create": _message_create,
             "message_update": _message_update,
-            "message_delete": _message_delete
+            "message_delete": _message_delete,
+            "message_delete_bulk": _message_bulk_delete,
         }
 
         # Load Events
@@ -207,5 +219,27 @@ class Client:
         else:
             raise FetchChannelMessagesFailed(result)
 
-    # async def bulk_delete(self, id: int, limit: int = 2):
-    #    """Bulk-delete messages from channel."""
+    async def bulk_delete(self, id: int, limit: int = 2):
+        """Bulk-delete messages from channel.
+
+        Args:
+            id (int): Channel ID.
+            limit (int): Maximum message limit (default is 2).
+
+        Returns:
+            list: List of purged? messages.
+
+        Raises:
+            BulkDeleteMessagesFailed: Channel purge is failed.
+        """
+
+        messages = await self.fetch_messages(id, limit)
+
+        atom, result = await self.http.request("POST", f"/channels/{id}/messages/bulk-delete", {
+            "messages": [i.id for i in messages]
+        })
+
+        if atom == 0:
+            return messages
+        else:
+            raise BulkDeleteMessagesFailed(result)
