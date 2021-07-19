@@ -183,3 +183,29 @@ class Client:
             return Channel(self,  result)
         else:
             raise FetchChannelFailed(result)
+
+    async def fetch_messages(self, id: int, limit: int = 10):
+        """Fetch messages from channel.
+
+        Args:
+            id (int): Channel ID.
+            limit (int): Maximum message limit (default is 10).
+
+        Returns:
+            list: List of message object.
+
+        Raises:
+            FetchChannelMessagesFailed: Fetching the messages from channel is failed.
+        """
+
+        from .message import Message
+
+        atom, result = await self.http.request("GET", f"/channels/{id}/messages?limit={limit}")
+
+        if atom == 0:
+            return [Message(self, i) for i in result]
+        else:
+            raise FetchChannelMessagesFailed(result)
+
+    # async def bulk_delete(self, id: int, limit: int = 2):
+    #    """Bulk-delete messages from channel."""

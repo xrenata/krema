@@ -39,7 +39,7 @@ class User:
         self.username: str = data.get("username")
         self.discriminator: str = data.get("discriminator")
         self.avatar: Union[str, None] = data.get("avatar")
-        self.bot: bool = data.get("bot") or False
+        self.bot: bool = data.get("bot", False)
         self.system: Union[bool, None] = data.get("system")
         self.mfa_enabled: Union[bool, None] = data.get("mfa_enabled")
         self.locale: Union[str, None] = data.get("locale")
