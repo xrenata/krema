@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Union
 
-from ..errors import SendMessageFailed, FetchChannelMessagesFailed, BulkDeleteMessagesFailed
+from ..errors import SendMessageFailed, FetchChannelMessagesFailed, BulkDeleteMessagesFailed, EditChannelFailed
 
 
 @dataclass
@@ -110,11 +110,11 @@ class Channel:
         atom, result = await self.client.http.request("GET", f"/channels/{self.id}/messages?limit={limit}")
 
         if atom == 0:
-            return [Message(self, i) for i in result]
+            return [Message(self.client, i) for i in result]
         else:
             raise FetchChannelMessagesFailed(result)
 
-    async def bulk_delete(self, limit: int = 2):
+    async def purge(self, limit: int = 2):
         """Bulk-delete messages from channel.
 
         Args:
@@ -138,7 +138,7 @@ class Channel:
         else:
             raise BulkDeleteMessagesFailed(result)
 
-    async def send_message(self, **kwargs):
+    async def send(self, **kwargs):
         """Send message to the text-channel.
 
         Args:
@@ -153,9 +153,29 @@ class Channel:
 
         from .message import Message
 
-        atom, result = await self.http.request("POST", f"/channels/{self.id}/messages", kwargs)
+        atom, result = await self.client.http.request("POST", f"/channels/{self.id}/messages", kwargs)
 
         if atom == 0:
-            return Message(self, result)
+            return Message(self.client, result)
         else:
             raise SendMessageFailed(result)
+
+    async def edit(self, **kwargs):
+        """Edit channel with API params.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/channel#modify-channel
+
+        Returns:
+            Channel: New channel.
+
+        Raises:
+            EditChannelFailed: Editing the channel is failed.
+        """
+
+        atom, result = await self.client.http.request("PATCH", f"/channels/{self.id}", kwargs)
+
+        if atom == 0:
+            return Channel(self.client, result)
+        else:
+            raise EditChannelFailed(result)

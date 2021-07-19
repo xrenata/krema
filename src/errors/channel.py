@@ -19,3 +19,9 @@ class BulkDeleteMessagesFailed(Exception):
     """Raises when purge messages from channel is failed."""
 
     pass
+
+
+class EditChannelFailed(Exception):
+    """Raises when editing the channel is failed."""
+
+    pass
