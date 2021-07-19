@@ -12,14 +12,25 @@ class Client:
     Args:
         intents (int): Intents for your bot. Do not add any intent if you are using for self-bot.
         cache_limit (int): Cache limit for krema. 
+
+    Attributes:
+        token (str): Bot token for http request.
+        events (list): List of events for client.
+        user (User): Client user.
+        messages (kollektor.Kollektor): Message cache.
+        connection (Gateway): Client gateway.
+        connection (HTTP): Client http class.
     """
 
     def __init__(self, intents: int = 0, cache_limit: int = 200) -> None:
+        from .user import User
+
         self.intents: int = intents
         self.cache_limit: int = cache_limit
 
         self.token: str = ""
         self.events: list = []
+        self.user: User = None
 
         self.messages: kollektor.Kollektor = kollektor.Kollektor()
 
@@ -27,7 +38,6 @@ class Client:
         self.http = None
 
         self.__add_cache_events()
-
         pass
 
     @property
@@ -63,6 +73,25 @@ class Client:
 
         return decorator
 
+    async def check_token(self):
+        """Check token status for client.
+
+        Returns:
+            None: Client token works.
+
+        Raises:
+            InvalidTokenError: Checking the token is failed, probably your token is broken.
+        """
+
+        from .user import User
+        atom, result = await self.http.request("GET", "/users/@me")
+
+        if atom == 1:
+            raise InvalidTokenError(
+                "Token is invalid. Please check your token!")
+        else:
+            self.user = User(self, result)
+
     def start(self, token: str, bot: bool = True):
         """Start the client.
 
@@ -79,6 +108,7 @@ class Client:
         self.connection = Gateway(self)
         self.http = HTTP(self)
 
+        self.connection._event_loop.run_until_complete(self.check_token())
         self.connection._event_loop.run_until_complete(
             self.connection.start_connection())
 
