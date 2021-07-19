@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Union
 
+from ..errors import SendMessageFailed, FetchChannelMessagesFailed, BulkDeleteMessagesFailed
+
 
 @dataclass
 class Channel:
@@ -87,3 +89,73 @@ class Channel:
             data.get("member")) if data.get("member") else None
         self.default_auto_archive_duration: Union[int, None] = data.get(
             "default_auto_archive_duration")
+
+        pass
+
+    async def fetch_messages(self, limit: int = 10):
+        """Fetch messages from channel.
+
+        Args:
+            limit (int): Maximum message limit (default is 10).
+
+        Returns:
+            list: List of message object.
+
+        Raises:
+            FetchChannelMessagesFailed: Fetching the messages from channel is failed.
+        """
+
+        from .message import Message
+
+        atom, result = await self.client.http.request("GET", f"/channels/{self.id}/messages?limit={limit}")
+
+        if atom == 0:
+            return [Message(self, i) for i in result]
+        else:
+            raise FetchChannelMessagesFailed(result)
+
+    async def bulk_delete(self, limit: int = 2):
+        """Bulk-delete messages from channel.
+
+        Args:
+            limit (int): Maximum message limit (default is 2).
+
+        Returns:
+            list: List of purged? messages.
+
+        Raises:
+            BulkDeleteMessagesFailed: Channel purge is failed.
+        """
+
+        messages = await self.fetch_messages(limit)
+
+        atom, result = await self.client.http.request("POST", f"/channels/{self.id}/messages/bulk-delete", {
+            "messages": [i.id for i in messages]
+        })
+
+        if atom == 0:
+            return messages
+        else:
+            raise BulkDeleteMessagesFailed(result)
+
+    async def send_message(self, **kwargs):
+        """Send message to the text-channel.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/channel#create-message-jsonform-params
+
+        Returns:
+            Message: Sent message object.
+
+        Raises:
+            SendMessageFailed: Sending the message is failed.
+        """
+
+        from .message import Message
+
+        atom, result = await self.http.request("POST", f"/channels/{self.id}/messages", kwargs)
+
+        if atom == 0:
+            return Message(self, result)
+        else:
+            raise SendMessageFailed(result)

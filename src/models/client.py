@@ -3,7 +3,7 @@ Client model for krema.
 """
 
 from unikorn import kollektor
-from ..errors import *
+from ..errors import FetchChannelFailed, InvalidTokenError
 
 
 class Client:
@@ -181,29 +181,6 @@ class Client:
     # Endpoint Functions
     # ==================
 
-    async def send_message(self, id: int, **kwargs):
-        """Send message to the text-channel.
-
-        Args:
-            id (int): Channel ID.
-            **kwargs: https://discord.com/developers/docs/resources/channel#create-message-jsonform-params
-
-        Returns:
-            Message: Sent message object.
-
-        Raises:
-            SendMessageFailed: Sending the message is failed.
-        """
-
-        from .message import Message
-
-        atom, result = await self.http.request("POST", f"/channels/{id}/messages", kwargs)
-
-        if atom == 0:
-            return Message(self, result)
-        else:
-            raise SendMessageFailed(result)
-
     async def fetch_channel(self, id: int):
         """Fetch a channel by ID.
 
@@ -225,51 +202,3 @@ class Client:
             return Channel(self,  result)
         else:
             raise FetchChannelFailed(result)
-
-    async def fetch_messages(self, id: int, limit: int = 10):
-        """Fetch messages from channel.
-
-        Args:
-            id (int): Channel ID.
-            limit (int): Maximum message limit (default is 10).
-
-        Returns:
-            list: List of message object.
-
-        Raises:
-            FetchChannelMessagesFailed: Fetching the messages from channel is failed.
-        """
-
-        from .message import Message
-
-        atom, result = await self.http.request("GET", f"/channels/{id}/messages?limit={limit}")
-
-        if atom == 0:
-            return [Message(self, i) for i in result]
-        else:
-            raise FetchChannelMessagesFailed(result)
-
-    async def bulk_delete(self, id: int, limit: int = 2):
-        """Bulk-delete messages from channel.
-
-        Args:
-            id (int): Channel ID.
-            limit (int): Maximum message limit (default is 2).
-
-        Returns:
-            list: List of purged? messages.
-
-        Raises:
-            BulkDeleteMessagesFailed: Channel purge is failed.
-        """
-
-        messages = await self.fetch_messages(id, limit)
-
-        atom, result = await self.http.request("POST", f"/channels/{id}/messages/bulk-delete", {
-            "messages": [i.id for i in messages]
-        })
-
-        if atom == 0:
-            return messages
-        else:
-            raise BulkDeleteMessagesFailed(result)

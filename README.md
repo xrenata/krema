@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://i.imgur.com/P2f5I8f.png" alt="krema"/>
+<img src="https://avatars.githubusercontent.com/u/87482214?s=256&v=4" alt="krema"/>
 <h1>Krema</h1>
 <p>A fast, flexible and lightweight Discord API wrapper for Python.</p>
 
