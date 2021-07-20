@@ -106,7 +106,7 @@ class Gateway:
         if event_type in ("message_create", "message_update"):
             filtered = self.__filter_events(
                 event_type, (Message(self.client, event_data), ))
-        elif event_type in ("guild_create"):
+        elif event_type in ("guild_create", "guild_update"):
             filtered = self.__filter_events(
                 event_type, (Guild(self.client, event_data), ))
         else:

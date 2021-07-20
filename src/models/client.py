@@ -33,6 +33,7 @@ class Client:
         self.user: User = None
 
         self.messages: kollektor.Kollektor = kollektor.Kollektor()
+        self.guilds: kollektor.Kollektor = kollektor.Kollektor()
 
         self.connection = None
         self.http = None
@@ -133,12 +134,8 @@ class Client:
                 return
             else:
                 message_id = int(message_id)
-
-                for message in self.messages.items:
-                    if message.id == message_id:
-                        self.messages.items = tuple(
-                            i for i in self.messages.items if i.id != message.id)
-                        break
+                self.messages.items = tuple(
+                    i for i in self.messages.items if i.id != message_id)
 
         # Message Bulk Delete Handler
         async def _message_bulk_delete(packet):
@@ -151,11 +148,24 @@ class Client:
                 self.messages.items = tuple(
                     i for i in self.messages.items if i.id not in message_ids)
 
+        # Guild Create Handler
+        async def _guild_create(guild):
+            self.guilds.append(guild)
+
+        # Guild Update Handler
+        async def _guild_update(guild_packet):
+            for index, guild in enumerate(self.guilds.items):
+                if guild.id == guild_packet.id:
+                    self.guilds.update(index, guild_packet)
+                    break
+
         event_list: dict = {
             "message_create": _message_create,
             "message_update": _message_update,
             "message_delete": _message_delete,
             "message_delete_bulk": _message_bulk_delete,
+            "guild_create": _guild_create,
+            "guild_update": _guild_update,
         }
 
         # Load Events
