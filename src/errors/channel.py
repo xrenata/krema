@@ -25,3 +25,9 @@ class EditChannelFailed(Exception):
     """Raises when editing the channel is failed."""
 
     pass
+
+
+class DeleteChannelFailed(Exception):
+    """Raises when deleting the channel is failed."""
+
+    pass

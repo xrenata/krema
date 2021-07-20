@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Union
 
-from ..errors import SendMessageFailed, FetchChannelMessagesFailed, BulkDeleteMessagesFailed, EditChannelFailed
+from ..errors import SendMessageFailed, FetchChannelMessagesFailed, BulkDeleteMessagesFailed, EditChannelFailed, DeleteChannelFailed
 
 
 @dataclass
@@ -179,3 +179,20 @@ class Channel:
             return Channel(self.client, result)
         else:
             raise EditChannelFailed(result)
+
+    async def delete(self):
+        """Delete channel.
+
+        Returns:
+            Channel: Deleted channel.
+
+        Raises:
+            DeleteChannelFailed: Editing the channel is failed.
+        """
+
+        atom, result = await self.client.http.request("DELETE", f"/channels/{self.id}", {})
+
+        if atom == 0:
+            return Channel(self.client, result)
+        else:
+            raise DeleteChannelFailed(result)
