@@ -18,6 +18,7 @@ class Client:
         events (list): List of events for client.
         user (User): Client user.
         messages (kollektor.Kollektor): Message cache.
+        guilds (kollektor.Kollektor): Guild cache.
         connection (Gateway): Client gateway.
         connection (HTTP): Client http class.
     """
@@ -59,7 +60,6 @@ class Client:
 
         Args:
             event_name (str, optional): Event name in lowercase. Example MESSAGE_CREATE is message_create for krema. If you don't add this argument, It will get the name from function name.
-
         """
 
         def decorator(fn):
