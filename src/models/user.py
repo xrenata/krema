@@ -13,7 +13,7 @@ class User:
 
     Args:
         client (Client): Krema client.
-        data (dict): Sent packed from websocket.
+        data (dict): Sent packet from websocket.
 
     Attributes:
         client (Client): Krema client.
@@ -56,7 +56,7 @@ class Member:
 
     Args:
         client (Client): Krema client.
-        data (dict): Sent packed from websocket.
+        data (dict): Sent packet from websocket.
 
     Attributes:
         client (Client): Krema client.
@@ -81,9 +81,9 @@ class Member:
         self.pending: Union[bool, None] = data.get("pending")
         self.permissions: Union[str, None] = data.get("permissions")
         self.joined_at: Union[datetime, None] = convert_iso(
-            data.get("joined_at")) if data.get("joined_at") else None
+            data.get("joined_at")) if data.get("joined_at") is not None else None
         self.premium_since: Union[datetime, None] = convert_iso(
-            data.get("premium_since")) if data.get("premium_since") else None
+            data.get("premium_since")) if data.get("premium_since") is not None else None
         self.deaf: bool = data.get("deaf")
         self.mute: bool = data.get("mute")
 
@@ -93,7 +93,7 @@ class ThreadMember:
     """Thread-member class.
 
     Args:
-        data (dict): Sent packed from websocket.
+        data (dict): Sent packet from websocket.
 
     Attributes:
         id (int, None): The ID of the thread.
@@ -106,9 +106,9 @@ class ThreadMember:
         from ..utils import convert_iso
 
         self.id: Union[int, None] = int(
-            data.get("id")) if data.get("id") else None
+            data.get("id")) if data.get("id") is not None else None
         self.user_id: Union[int, None] = int(
-            data.get("user_id")) if data.get("user_id") else None
+            data.get("user_id")) if data.get("user_id") is not None else None
         self.join_timestamp: Union[int, None] = convert_iso(
-            data.get("join_timestamp")) if data.get("join_timestamp") else None
+            data.get("join_timestamp")) if data.get("join_timestamp") is not None else None
         self.flags: int = data.get("flags")

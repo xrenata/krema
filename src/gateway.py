@@ -7,8 +7,11 @@ import aiohttp
 from zlib import decompressobj
 from json import loads
 
+from .models.message import Message
+from .models.guild import Guild
 
 class Gateway:
+
     """Base class for gateway.
 
     Args:
@@ -100,11 +103,12 @@ class Gateway:
             # print(message, end="\n\n")
 
     async def __handle_event(self, event_data, event_type):
-        from .models.message import Message
-
         if event_type in ("message_create", "message_update"):
             filtered = self.__filter_events(
                 event_type, (Message(self.client, event_data), ))
+        elif event_type in ("guild_create"):
+            filtered = self.__filter_events(
+                event_type, (Guild(self.client, event_data), ))
         else:
             filtered = self.__filter_events(event_type, (event_data, ))
 

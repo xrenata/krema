@@ -13,7 +13,7 @@ class Attachment:
     """Attachment class.
 
     Args:
-        data (dict): Sent packed from websocket.
+        data (dict): Sent packet from websocket.
 
     Attributes:
         id (int): Attachment ID.
@@ -43,7 +43,7 @@ class Embed:
     """Embed class.
 
     Args:
-        data (dict): Sent packed from websocket.
+        data (dict): Sent packet from websocket.
 
     Attributes:
         title (str, None): Embed title.
@@ -69,7 +69,7 @@ class Embed:
         self.description: Union[str, None] = data.get("description")
         self.url: Union[str, None] = data.get("url")
         self.timestamp: Union[datetime, None] = convert_iso(
-            data.get("timestamp")) if data.get("timestamp") else None
+            data.get("timestamp")) if data.get("timestamp") is not None else None
         self.color: Union[int, None] = data.get("color")
         self.footer: Union[dict, None] = data.get("footer")
         self.image: Union[dict, None] = data.get("image")
@@ -86,7 +86,7 @@ class Message:
 
     Args:
         client (Client): Krema client.
-        data (dict): Sent packed from websocket.
+        data (dict): Sent packet from websocket.
 
     Attributes:
         client (Client): Krema client.
@@ -132,15 +132,15 @@ class Message:
         self.id: int = int(data.get("id"))
         self.channel_id: int = int(data.get("channel_id"))
         self.guild_id: Union[int, None] = int(
-            data.get("guild_id")) if data.get("guild_id") else None
+            data.get("guild_id")) if data.get("guild_id") is not None else None
         self.author: Union[User, int, None] = User(
-            self.client, data.get("author")) if data.get("author") else None
+            self.client, data.get("author")) if data.get("author") is not None else None
         self.member: Union[Member, int, None] = Member(
-            self.client, data.get("author")) if data.get("author") else None
+            self.client, data.get("author")) if data.get("author") is not None else None
         self.content: str = data.get("content")
         self.timestamp: datetime = convert_iso(data.get("timestamp"))
         self.edited_timestamp: Union[datetime, None] = convert_iso(
-            data.get("edited_timestamp")) if data.get("edited_timestamp") else None
+            data.get("edited_timestamp")) if data.get("edited_timestamp") is not None else None
         self.tts: bool = data.get("tts")
         self.mention_everyone: bool = data.get("mention_everyone")
 
@@ -155,19 +155,19 @@ class Message:
         self.nonce: Union[int, str, None] = data.get("nonce")
         self.pinned: bool = data.get("pinned")
         self.webhook_id: Union[int, None] = int(
-            data.get("webhook_id")) if data.get("webhook_id") else None
+            data.get("webhook_id")) if data.get("webhook_id") is not None else None
         self.type: int = data.get("type")
         self.activity: Union[dict, None] = data.get("activity")
         self.application: Union[dict, None] = data.get("application")
         self.application_id: Union[int, None] = int(
-            data.get("application_id")) if data.get("application_id") else None
+            data.get("application_id")) if data.get("application_id") is not None else None
         self.message_reference: Union[dict,
                                       None] = data.get("message_reference")
         self.flags: Union[int, None] = data.get("flags")
         self.interaction: Union[dict, None] = data.get("interaction")
 
         self.thread: Union[Channel, None] = Channel(
-            data.get("thread")) if data.get("thread") else None
+            data.get("thread")) if data.get("thread") is not None else None
 
         self.components: Union[list, None] = data.get("components")
         self.sticker_items: Union[list, None] = data.get("sticker_items")
