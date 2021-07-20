@@ -159,6 +159,17 @@ class Client:
                     self.guilds.update(index, guild_packet)
                     break
 
+        # Guild Delete Handler
+        async def _guild_delete(packet):
+            guild_id = packet.get("id")
+
+            if guild_id is None:
+                return
+            else:
+                guild_id = int(guild_id)
+                self.guilds.items = tuple(
+                    i for i in self.guilds.items if i.id != guild_id)
+
         event_list: dict = {
             "message_create": _message_create,
             "message_update": _message_update,
@@ -166,6 +177,7 @@ class Client:
             "message_delete_bulk": _message_bulk_delete,
             "guild_create": _guild_create,
             "guild_update": _guild_update,
+            "guild_delete": _guild_delete
         }
 
         # Load Events
