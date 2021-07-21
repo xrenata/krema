@@ -19,6 +19,7 @@ class Client:
         user (User): Client user.
         messages (kollektor.Kollektor): Message cache.
         guilds (kollektor.Kollektor): Guild cache.
+        channels (kollektor.Kollektor): Channel cache.
         connection (Gateway): Client gateway.
         connection (HTTP): Client http class.
     """
@@ -35,6 +36,7 @@ class Client:
 
         self.messages: kollektor.Kollektor = kollektor.Kollektor()
         self.guilds: kollektor.Kollektor = kollektor.Kollektor()
+        self.channels: kollektor.Kollektor = kollektor.Kollektor()
 
         self.connection = None
         self.http = None
@@ -152,6 +154,10 @@ class Client:
         async def _guild_create(guild):
             self.guilds.append(guild)
 
+            # Add Guild Channels
+            if guild.channels is not None:
+                self.channels.append(*guild.channels)
+
         # Guild Update Handler
         async def _guild_update(guild_packet):
             for index, guild in enumerate(self.guilds.items):
@@ -170,6 +176,27 @@ class Client:
                 self.guilds.items = tuple(
                     i for i in self.guilds.items if i.id != guild_id)
 
+        # Channel Create Handler
+        async def _channel_create(channel):
+            self.channels.append(channel)
+
+        # Channel Update Handler
+        async def _channel_update(channel_packet):
+            for index, channel in enumerate(self.channels.items):
+                if channel.id == channel_packet.id:
+                    self.channels.update(index, channel_packet)
+                    break
+
+        # Channel Delete Handler
+        async def _channel_delete(channel_packet):
+            channel_id = hasattr(channel_packet, "id")
+
+            if channel_id is None:
+                return
+            else:
+                self.channels.items = tuple(
+                    i for i in self.channels.items if i.id != channel_packet.id)
+
         event_list: dict = {
             "message_create": _message_create,
             "message_update": _message_update,
@@ -177,7 +204,10 @@ class Client:
             "message_delete_bulk": _message_bulk_delete,
             "guild_create": _guild_create,
             "guild_update": _guild_update,
-            "guild_delete": _guild_delete
+            "guild_delete": _guild_delete,
+            "channel_create": _channel_create,
+            "channel_update": _channel_update,
+            "channel_delete": _channel_delete
         }
 
         # Load Events
