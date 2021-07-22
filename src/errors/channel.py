@@ -15,6 +15,12 @@ class FetchChannelMessagesFailed(Exception):
     pass
 
 
+class FetchChannelMessageFailed(Exception):
+    """Raises when fetching A message from channel is failed."""
+
+    pass
+
+
 class BulkDeleteMessagesFailed(Exception):
     """Raises when purge messages from channel is failed."""
 

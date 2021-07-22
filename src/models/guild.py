@@ -6,7 +6,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Union
 
-from ..errors import SendMessageFailed, FetchChannelMessagesFailed, BulkDeleteMessagesFailed, EditChannelFailed, DeleteChannelFailed
+from ..errors.message import SendMessageFailed
+from ..errors.channel import *
 
 
 @dataclass
@@ -189,7 +190,6 @@ class Channel:
         Raises:
             FetchChannelMessagesFailed: Fetching the messages from channel is failed.
         """
-
         from .message import Message
 
         atom, result = await self.client.http.request("GET", f"/channels/{self.id}/messages?limit={limit}")
@@ -235,7 +235,6 @@ class Channel:
         Raises:
             SendMessageFailed: Sending the message is failed.
         """
-
         from .message import Message
 
         atom, result = await self.client.http.request("POST", f"/channels/{self.id}/messages", kwargs)
@@ -281,3 +280,24 @@ class Channel:
             return Channel(self.client, result)
         else:
             raise DeleteChannelFailed(result)
+
+    async def fetch_message(self, message_id: int):
+        """Fetch a message from channel by ID.
+
+        Args:
+            message_id: Message ID.
+
+        Returns:
+            Message: Found message.
+
+        Raises:
+            FetchChannelMessageFailed: Fetching the message is failed.
+        """
+        from .message import Message
+
+        atom, result = await self.client.http.request("GET", f"/channels/{self.id}/messages/{message_id}")
+
+        if atom == 0:
+            return Message(self.client, result)
+        else:
+            raise FetchChannelMessageFailed(result)
