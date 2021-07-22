@@ -140,7 +140,7 @@ class Client:
                     i for i in self.messages.items if i.id != message_id)
 
         # Message Bulk Delete Handler
-        async def _message_bulk_delete(packet):
+        async def _message_delete_bulk(packet):
             message_ids = packet.get("ids")
 
             if message_ids is None:
@@ -197,22 +197,11 @@ class Client:
                 self.channels.items = tuple(
                     i for i in self.channels.items if i.id != channel_packet.id)
 
-        event_list: dict = {
-            "message_create": _message_create,
-            "message_update": _message_update,
-            "message_delete": _message_delete,
-            "message_delete_bulk": _message_bulk_delete,
-            "guild_create": _guild_create,
-            "guild_update": _guild_update,
-            "guild_delete": _guild_delete,
-            "channel_create": _channel_create,
-            "channel_update": _channel_update,
-            "channel_delete": _channel_delete
-        }
+        local = locals()
 
         # Load Events
         self.events.extend(
-            (key, value) for key, value in event_list.items()
+            (i[1:], local[i]) for i in local if i.startswith("_")
         )
 
     # Gateway Function
