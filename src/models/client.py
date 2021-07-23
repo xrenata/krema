@@ -11,7 +11,9 @@ class Client:
 
     Args:
         intents (int): Intents for your bot. Do not add any intent if you are using for self-bot.
-        cache_limit (int): Cache limit for krema. 
+        message_limit (int): Message cache limit for krema (default is 200). 
+        channel_limit (int): Channel cache limit for krema (default is None). 
+        guild_limit (int): Guild cache limit for krema (default is None). 
 
     Attributes:
         token (str): Bot token for http request.
@@ -24,19 +26,21 @@ class Client:
         connection (HTTP): Client http class.
     """
 
-    def __init__(self, intents: int = 0, cache_limit: int = 200) -> None:
+    def __init__(self, intents: int = 0, message_limit: int = 200, channel_limit: int = None, guild_limit: int = None) -> None:
         from .user import User
 
         self.intents: int = intents
-        self.cache_limit: int = cache_limit
 
         self.token: str = ""
         self.events: list = []
         self.user: User = None
 
-        self.messages: kollektor.Kollektor = kollektor.Kollektor()
-        self.guilds: kollektor.Kollektor = kollektor.Kollektor()
-        self.channels: kollektor.Kollektor = kollektor.Kollektor()
+        self.messages: kollektor.Kollektor = kollektor.Kollektor(
+            limit=message_limit, items=())
+        self.guilds: kollektor.Kollektor = kollektor.Kollektor(
+            limit=guild_limit, items=())
+        self.channels: kollektor.Kollektor = kollektor.Kollektor(
+            limit=channel_limit, items=())
 
         self.connection = None
         self.http = None
