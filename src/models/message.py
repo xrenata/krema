@@ -6,6 +6,9 @@ Models for message and other classes about message.
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Union
+from urllib.parse import quote
+from ..utils import convert_iso, dict_to_query
+from ..errors.message import *
 
 
 @dataclass
@@ -62,8 +65,6 @@ class Embed:
     """
 
     def __init__(self, data: dict) -> None:
-        from ..utils import convert_iso
-
         self.title: Union[str, None] = data.get("title")
         self.type: Union[str, None] = data.get("type")
         self.description: Union[str, None] = data.get("description")
@@ -123,7 +124,6 @@ class Message:
     """
 
     def __init__(self, client, data: dict) -> None:
-        from ..utils import convert_iso
         from .user import User, Member
         from .guild import Channel
 
@@ -172,3 +172,87 @@ class Message:
         self.components: Union[list, None] = data.get("components")
         self.sticker_items: Union[list, None] = data.get("sticker_items")
         self.stickers: Union[list, None] = data.get("stickers")
+
+    async def create_reaction(self, emoji: str):
+        """Create / add a reaction to the message.
+
+        Args:
+            emoji (str): The emoji will be added. For custom emojis, use the name:id format.
+
+        Returns:
+            True: Added successfully.
+
+        Raises:
+            CreateReactionFailed: Creating the reaction is failed.
+        """
+
+        atom, result = await self.client.http.request("PUT", f"/channels/{self.channel_id}/messages/{self.id}/reactions/{quote(emoji)}/@me")
+
+        if atom == 0:
+            return True
+        else:
+            raise CreateReactionFailed(result)
+
+    async def delete_reaction(self, emoji: str, user_id: int = None):
+        """Delete a user's reaction from message.
+
+        Args:
+            emoji (str): The emoji will be deleted. For custom emojis, use the name:id format.
+            user_id (int, optional): User id, if not added it will delete client's reaction.
+
+        Returns:
+            True: Deleted successfully.
+
+        Raises:
+            DeleteReactionFailed: Deleting the reaction is failed.
+        """
+
+        atom, result = await self.client.http.request("DELETE", f"/channels/{self.channel_id}/messages/{self.id}/reactions/{quote(emoji)}/{'@me' if user_id is None else user_id}", {})
+
+        if atom == 0:
+            return True
+        else:
+            raise DeleteReactionFailed(result)
+
+    async def fetch_reactions(self, emoji: str, **kwargs):
+        """Fetch reactions from message.
+
+        Args:
+            emoji (str): The emoji will be deleted. For custom emojis, use the name:id format.
+            **kwargs: https://discord.com/developers/docs/resources/channel#get-reactions-query-string-params
+
+        Returns:
+            list: List of user objects.
+
+        Raises:
+            FetchReactionsFailed: Fetching the reactions are failed.
+        """
+
+        from .user import User
+
+        atom, result = await self.client.http.request("GET", f"/channels/{self.channel_id}/messages/{self.id}/reactions/{quote(emoji)}{dict_to_query(kwargs)}")
+
+        if atom == 0:
+            return [User(self.client, i) for i in result]
+        else:
+            raise FetchReactionsFailed(result)
+
+    async def delete_reactions(self, emoji: str = None):
+        """Delete / delete all reactions from message.
+
+        Args:
+            emoji (str, optional): The emoji will be deleted. For custom emojis, use the name:id format. if not added, it will delete all of the reactions from message.
+
+        Returns:
+            True: succesfully deleted reactions.
+
+        Raises:
+            DeleteReactionsFailed: Deleting the reactions are failed.
+        """
+
+        atom, result = await self.client.http.request("DELETE", f"/channels/{self.channel_id}/messages/{self.id}/reactions{f'/{quote(emoji)}' if emoji is not None else ''}", {})
+
+        if atom == 0:
+            return True
+        else:
+            raise DeleteReactionsFailed(result)
