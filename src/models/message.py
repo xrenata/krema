@@ -294,3 +294,28 @@ class Message:
             return True
         else:
             raise DeleteMessageFailed(result)
+
+    async def reply(self, **kwargs):
+        """Reply to the message.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/channel#create-message-jsonform-params
+
+        Returns:
+            Message: Sent message object.
+
+        Raises:
+            SendMessageFailed: Sending the message is failed.
+        """
+
+        atom, result = await self.client.http.request("POST", f"/channels/{self.channel_id}/messages", {
+            **kwargs,
+            "message_reference": {
+                "message_id": self.id
+            }
+        })
+
+        if atom == 0:
+            return Message(self.client, result)
+        else:
+            raise SendMessageFailed(result)
