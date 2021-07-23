@@ -28,6 +28,18 @@ class FetchReactionsFailed(Exception):
 
 
 class DeleteReactionsFailed(Exception):
-    """Raises when deleting the reactions is failed."""
+    """Raises when deleting the reactions are failed."""
+
+    pass
+
+
+class EditMessageFailed(Exception):
+    """Raises when editing the message is failed."""
+
+    pass
+
+
+class DeleteMessageFailed(Exception):
+    """Raises when deleting the message is failed."""
 
     pass

@@ -5,7 +5,7 @@ Models for message and other classes about message.
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Union
+from typing import Optional, Union
 from urllib.parse import quote
 from ..utils import convert_iso, dict_to_query
 from ..errors.message import *
@@ -256,3 +256,41 @@ class Message:
             return True
         else:
             raise DeleteReactionsFailed(result)
+
+    async def edit(self, file_name: str = None, **kwargs):
+        """Edit the message.
+
+        Args:
+            file_name (str, optional): File name for your file.
+            **kwargs: https://discord.com/developers/docs/resources/channel#edit-message-jsonform-params
+
+        Returns:
+            Message: New message object.
+
+        Raises:
+            EditMessageFailed: Editing the message is failed.
+        """
+
+        atom, result = await self.client.http.request("PATCH", f"/channels/{self.channel_id}/messages/{self.id}", kwargs, {"Content-Disposition": file_name} if file_name is not None else None)
+
+        if atom == 0:
+            return Message(self.client, result)
+        else:
+            raise EditMessageFailed(result)
+
+    async def delete(self):
+        """Delete the message.
+
+        Returns:
+            True: Deleted successfully
+
+        Raises:
+            DeleteMessageFailed: Deleting the message is failed.
+        """
+
+        atom, result = await self.client.http.request("DELETE", f"/channels/{self.channel_id}/messages/{self.id}", {})
+
+        if atom == 0:
+            return True
+        else:
+            raise DeleteMessageFailed(result)

@@ -22,7 +22,7 @@ class HTTP:
 
         pass
 
-    async def request(self, method: str, endpoint: str, params: Union[dict, list] = None) -> tuple:
+    async def request(self, method: str, endpoint: str, params: Union[dict, list] = None, headers: Union[dict] = None) -> tuple:
         """Send a async request to the discord API.
 
         Args:
@@ -32,16 +32,19 @@ class HTTP:
 
         Returns:
             tuple: A tuple that contains an atom and result.
-                
+
                 Atom (0): Request successfully sent and got 2xx.
-                
+
                 Atom (1): Request failed.
         """
 
         result: tuple = ()
 
+        if headers is None:
+            headers = {}
+
         async with aiohttp.ClientSession() as session:
-            async with session.request(method, f"{self.url}{endpoint}", headers={"Authorization": self.client.token, "Content-Type": "application/json", "User-Agent": "krema"}, json=params) as response:
+            async with session.request(method, f"{self.url}{endpoint}", headers={"Authorization": self.client.token, "Content-Type": "application/json", "User-Agent": "krema", **headers}, json=params) as response:
                 try:
                     json_data = await response.json()
                 except aiohttp.client_exceptions.ContentTypeError:
