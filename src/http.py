@@ -3,7 +3,6 @@ Http part of the krema.
 """
 
 import asyncio
-from typing import Any, Union
 import aiohttp
 
 
@@ -22,13 +21,13 @@ class HTTP:
 
         pass
 
-    async def request(self, method: str, endpoint: str, params: Union[dict, list] = None, headers: Union[dict] = None) -> tuple:
+    async def request(self, method: str, endpoint: str, **kwargs) -> tuple:
         """Send a async request to the discord API.
 
         Args:
             method (str): REST method. like GET, PATCH etc...
             endpoint (str): Endpoint URL for request.
-            params (dict): JSON Parameters for request.
+            **kwargs Other parameters for request.
 
         Returns:
             tuple: A tuple that contains an atom and result.
@@ -40,11 +39,8 @@ class HTTP:
 
         result: tuple = ()
 
-        if headers is None:
-            headers = {}
-
         async with aiohttp.ClientSession() as session:
-            async with session.request(method, f"{self.url}{endpoint}", headers={"Authorization": self.client.token, "Content-Type": "application/json", "User-Agent": "krema", **headers}, json=params) as response:
+            async with session.request(method, f"{self.url}{endpoint}", headers={"Authorization": self.client.token, "User-Agent": "krema"}, **kwargs) as response:
                 try:
                     json_data = await response.json()
                 except aiohttp.client_exceptions.ContentTypeError:
@@ -64,11 +60,11 @@ class HTTP:
                     retry_after = json_data.get("retry_after")
 
                     if retry_after is not None:
-                        return await self.__run_task_when_ratelimit_reset(retry_after, method, endpoint, params)
+                        return await self.__run_task_when_ratelimit_reset(retry_after, method, endpoint, **kwargs)
                     else:
                         result = (1, json_data.get("message") or json_data)
                         return result
 
-    async def __run_task_when_ratelimit_reset(self, ratelimit: float, method, endpoint, params):
+    async def __run_task_when_ratelimit_reset(self, ratelimit: float, method, endpoint, **kwargs):
         await asyncio.sleep(ratelimit + 0.1)
-        return await self.request(method, endpoint, params)
+        return await self.request(method, endpoint, **kwargs)

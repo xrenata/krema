@@ -5,6 +5,8 @@ Models for guild, channel and other related stuff.
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Union
+from json import dumps
+from aiohttp import FormData
 
 from ..errors.message import SendMessageFailed
 from ..errors.channel import *
@@ -214,7 +216,7 @@ class Channel:
 
         messages = await self.fetch_messages(limit)
 
-        atom, result = await self.client.http.request("POST", f"/channels/{self.id}/messages/bulk-delete", {
+        atom, result = await self.client.http.request("POST", f"/channels/{self.id}/messages/bulk-delete", json={
             "messages": [i.id for i in messages]
         })
 
@@ -223,10 +225,11 @@ class Channel:
         else:
             raise BulkDeleteMessagesFailed(result)
 
-    async def send(self, **kwargs):
+    async def send(self, file: dict = None, **kwargs):
         """Send message to the text-channel.
 
         Args:
+            file (dict): For send a message / embed attachment with file, use `krema.utils.file_builder` for make it easier.
             **kwargs: https://discord.com/developers/docs/resources/channel#create-message-jsonform-params
 
         Returns:
@@ -237,7 +240,18 @@ class Channel:
         """
         from .message import Message
 
-        atom, result = await self.client.http.request("POST", f"/channels/{self.id}/messages", kwargs)
+        params, payload = {}, FormData()
+
+        if file is not None:
+            payload.add_field(name='payload_json', value=dumps(
+                kwargs), content_type="application/json")
+            payload.add_field(**file)
+
+            params["data"] = payload
+        else:
+            params["json"] = kwargs
+
+        atom, result = await self.client.http.request("POST", f"/channels/{self.id}/messages", **params)
 
         if atom == 0:
             return Message(self.client, result)
@@ -257,7 +271,7 @@ class Channel:
             EditChannelFailed: Editing the channel is failed.
         """
 
-        atom, result = await self.client.http.request("PATCH", f"/channels/{self.id}", kwargs)
+        atom, result = await self.client.http.request("PATCH", f"/channels/{self.id}", json=kwargs)
 
         if atom == 0:
             return Channel(self.client, result)
@@ -274,7 +288,7 @@ class Channel:
             DeleteChannelFailed: Editing the channel is failed.
         """
 
-        atom, result = await self.client.http.request("DELETE", f"/channels/{self.id}", {})
+        atom, result = await self.client.http.request("DELETE", f"/channels/{self.id}")
 
         if atom == 0:
             return Channel(self.client, result)
