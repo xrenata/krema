@@ -3,7 +3,7 @@ Client model for krema.
 """
 
 from unikorn import kollektor
-from ..errors import FetchChannelFailed, InvalidTokenError
+from ..errors import FetchChannelFailed, InvalidTokenError, FetchUserFailed
 
 
 class Client:
@@ -227,7 +227,7 @@ class Client:
     # ==================
 
     async def fetch_channel(self, id: int):
-        """Fetch a channel by ID.
+        """Fetch a Channel by ID.
 
         Args:
             id (int): Channel ID.
@@ -247,3 +247,25 @@ class Client:
             return Channel(self,  result)
         else:
             raise FetchChannelFailed(result)
+
+    async def fetch_user(self, id: int = None):
+        """Fetch an User by ID.
+
+        Args:
+            id (int, optional): User ID, if not added it will fetch client user (@me).
+
+        Returns:
+            User: Found user.
+
+        Raises:
+            FetchUserFailed: Fetching the user is failed.
+        """
+
+        from .user import User
+
+        atom, result = await self.http.request("GET", f"/users/{id if id is not None else '@me'}")
+
+        if atom == 0:
+            return User(self,  result)
+        else:
+            raise FetchUserFailed(result)
