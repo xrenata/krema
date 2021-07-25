@@ -3,7 +3,8 @@ Client model for krema.
 """
 
 from unikorn import kollektor
-from ..errors import FetchChannelFailed, InvalidTokenError, FetchUserFailed
+from ..errors import FetchChannelFailed, InvalidTokenError, FetchUserFailed, ModifyClientUserFailed
+from ..utils import image_to_data_uri
 
 
 class Client:
@@ -269,3 +270,29 @@ class Client:
             return User(self,  result)
         else:
             raise FetchUserFailed(result)
+
+    async def edit(self, username: str, path: str):
+        """Edit client user.
+
+        Args:
+            username (str): New username.
+            path (str): Image / Gif path.
+
+        Returns:
+            User: Updated user.
+
+        Raises:
+            ModifyClientUserFailed: Editing the client user is failed.
+        """
+
+        from .user import User
+
+        atom, result = await self.http.request("PATCH", f"/users/@me", json={
+            "username": username,
+            "avatar": image_to_data_uri(path)
+        })
+
+        if atom == 0:
+            return User(self,  result)
+        else:
+            raise ModifyClientUserFailed(result)

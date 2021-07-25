@@ -3,6 +3,7 @@ Utils part of the krema.
 """
 
 from datetime import datetime
+from base64 import b64encode
 from os.path import basename
 
 
@@ -41,7 +42,7 @@ def dict_to_query(data: dict) -> str:
 
 def file_builder(path: str) -> dict:
     """File builder is a function that helps you while sending files.
-    
+
     Args:
         path (str): File path.
 
@@ -69,3 +70,19 @@ def file_builder(path: str) -> dict:
         "filename": basename(name),
         "content_type": "application/octet-stream"
     }
+
+
+def image_to_data_uri(path: str):
+    """Convert a image / gif to Data URI format.
+
+    Args:
+        path (str): Path to image / gif.
+
+    Returns:
+        str: Formatted version.
+    """
+    with open(path, "rb") as f:
+        img_bytes = f.read()
+        encrypt = b64encode(img_bytes).decode()
+
+        return f"data:image/{f.name.split('.')[-1].replace('jpg', 'jpeg')};base64,{encrypt}"

@@ -11,3 +11,9 @@ class InvalidTokenError(Exception):
     """Raises when checking the client token failed."""
 
     pass
+
+
+class ModifyClientUserFailed(Exception):
+    """Raises when editing the client user is failed."""
+
+    pass
