@@ -37,3 +37,9 @@ class DeleteChannelFailed(Exception):
     """Raises when deleting the channel is failed."""
 
     pass
+
+
+class StartTypingFailed(Exception):
+    """Raises when triggering the channel typing is failed."""
+
+    pass

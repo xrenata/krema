@@ -315,3 +315,21 @@ class Channel:
             return Message(self.client, result)
         else:
             raise FetchChannelMessageFailed(result)
+
+    async def trigger_typing(self):
+        """Trigger the Channel typing.
+        
+        Returns:
+            True: Typing triggered successfully.
+
+        Raises:
+            StartTypingFailed: Triggering is failed.
+        """
+
+        atom, result = await self.client.http.request("POST", f"/channels/{self.id}/typing")
+
+        if atom == 0:
+            return True
+        else:
+            raise StartTypingFailed(result)
+
