@@ -91,3 +91,35 @@ class Guild:
         self.welcome_screen: Union[dict, None] = data.get("welcome_screen")
         self.nsfw_level: int = data.get("nsfw_level")
         self.stage_instances: Union[list, None] = data.get("stage_instances")
+
+
+@dataclass
+class Emoji:
+    """Emoji class.
+
+    Attributes:
+        id (int, None): Emoji ID.
+        name (str, None): Emoji name.
+        roles (list, None): Allowed roles list.
+        user (User, None): Owner of the emoji.
+        require_colons (bool, None): whether this emoji must be wrapped in colons.
+        managed (bool, None): whether this emoji is managed.
+        animated (bool, None): whether this emoji is animated.
+        available (bool, None): "whether this emoji can be used, may be false due to loss of Server Boosts".
+    """
+
+    def __init__(self, client, data: dict) -> None:
+        from .user import User
+
+        self.client = client
+
+        self.id: Union[int, None] = int(
+            data.get("id")) if data.get("id") is not None else None
+        self.name: Union[str, None] = data.get("name")
+        self.roles: Union[list, None] = data.get("roles")
+        self.user: Union[User, None] = User(self.client, data.get(
+            "user")) if data.get("user") is not None else None
+        self.require_colons: Union[bool, None] = data.get("require_colons")
+        self.managed: Union[bool, None] = data.get("managed")
+        self.animated: Union[bool, None] = data.get("animated")
+        self.available: Union[bool, None] = data.get("available")
