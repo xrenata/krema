@@ -43,3 +43,9 @@ class StartTypingFailed(Exception):
     """Raises when triggering the channel typing is failed."""
 
     pass
+
+
+class FetchPinnedMessagesFailed(Exception):
+    """Raises when fetching the pinned messages is failed."""
+
+    pass

@@ -22,13 +22,13 @@ class DeleteReactionFailed(Exception):
 
 
 class FetchReactionsFailed(Exception):
-    """Raises when fetching the reactions are failed."""
+    """Raises when fetching the reactions is failed."""
 
     pass
 
 
 class DeleteReactionsFailed(Exception):
-    """Raises when deleting the reactions are failed."""
+    """Raises when deleting the reactions is failed."""
 
     pass
 
@@ -41,5 +41,17 @@ class EditMessageFailed(Exception):
 
 class DeleteMessageFailed(Exception):
     """Raises when deleting the message is failed."""
+
+    pass
+
+
+class PinMessageFailed(Exception):
+    """Raises when pinning the message is failed."""
+
+    pass
+
+
+class UnpinMessageFailed(Exception):
+    """Raises when unpinning the message is failed."""
 
     pass

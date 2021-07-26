@@ -347,3 +347,37 @@ class Message:
             return Message(self.client, result)
         else:
             raise SendMessageFailed(result)
+
+    async def pin(self):
+        """Pin the message.
+
+        Returns:
+            True: Message pinned successfully.
+
+        Raises:
+            PinMessageFailed: Pinning the message is failed.
+        """
+
+        atom, result = await self.client.http.request("PUT", f"/channels/{self.channel_id}/pins/{self.id}")
+
+        if atom == 0:
+            return True
+        else:
+            raise PinMessageFailed(result)
+
+    async def unpin(self):
+        """Unpin the message.
+
+        Returns:
+            True: Message unpinned successfully.
+
+        Raises:
+            UnpinMessageFailed: Pinning the message is failed.
+        """
+
+        atom, result = await self.client.http.request("DELETE", f"/channels/{self.channel_id}/pins/{self.id}")
+
+        if atom == 0:
+            return True
+        else:
+            raise UnpinMessageFailed(result)

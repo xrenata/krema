@@ -318,7 +318,7 @@ class Channel:
 
     async def trigger_typing(self):
         """Trigger the Channel typing.
-        
+
         Returns:
             True: Typing triggered successfully.
 
@@ -333,3 +333,20 @@ class Channel:
         else:
             raise StartTypingFailed(result)
 
+    async def fetch_pinned_messages(self):
+        """Fetch pinned messages from Channel.
+
+        Returns:
+            list: List of message objects.
+
+        Raises:
+            FetchPinnedMessagesFailed: Fetching the pinned messages is failed.
+        """
+        from .message import Message
+
+        atom, result = await self.client.http.request("GET", f"/channels/{self.id}/pins")
+
+        if atom == 0:
+            return [Message(self.client, i) for i in result]
+        else:
+            raise FetchPinnedMessagesFailed(result)
