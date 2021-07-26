@@ -240,7 +240,7 @@ class Client:
             FetchChannelFailed: Fetching the channel is failed.
         """
 
-        from .guild import Channel
+        from .channel import Channel
 
         atom, result = await self.http.request("GET", f"/channels/{id}")
 

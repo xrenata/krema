@@ -1,6 +1,6 @@
 
 """
-Models for message and other classes about message.
+Models for message and other related stuff.
 """
 
 from dataclasses import dataclass
@@ -128,7 +128,7 @@ class Message:
 
     def __init__(self, client, data: dict) -> None:
         from .user import User, Member
-        from .guild import Channel
+        from .channel import Channel
 
         self.client = client
 
