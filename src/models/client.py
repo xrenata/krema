@@ -3,7 +3,6 @@ Client model for krema.
 """
 
 from unikorn import kollektor
-from ..errors import FetchChannelFailed, InvalidTokenError, FetchUserFailed, ModifyClientUserFailed, FetchGuildFailed
 from ..utils import image_to_data_uri
 
 
@@ -86,19 +85,11 @@ class Client:
 
         Returns:
             None: Client token works.
-
-        Raises:
-            InvalidTokenError: Checking the token is failed, probably your token is broken.
         """
 
         from .user import User
-        atom, result = await self.http.request("GET", "/users/@me")
-
-        if atom == 1:
-            raise InvalidTokenError(
-                "Token is invalid. Please check your token!")
-        else:
-            self.user = User(self, result)
+        result = await self.http.request("GET", "/users/@me")
+        self.user = User(self, result)
 
     def start(self, token: str, bot: bool = True):
         """Start the client.
@@ -235,19 +226,12 @@ class Client:
 
         Returns:
             Channel: Found channel.
-
-        Raises:
-            FetchChannelFailed: Fetching the channel is failed.
         """
 
         from .channel import Channel
 
-        atom, result = await self.http.request("GET", f"/channels/{id}")
-
-        if atom == 0:
-            return Channel(self,  result)
-        else:
-            raise FetchChannelFailed(result)
+        result = await self.http.request("GET", f"/channels/{id}")
+        return Channel(self,  result)
 
     async def fetch_user(self, id: int = None):
         """Fetch an User by ID.
@@ -257,42 +241,28 @@ class Client:
 
         Returns:
             User: Found user.
-
-        Raises:
-            FetchUserFailed: Fetching the user is failed.
         """
 
         from .user import User
 
-        atom, result = await self.http.request("GET", f"/users/{id if id is not None else '@me'}")
-
-        if atom == 0:
-            return User(self,  result)
-        else:
-            raise FetchUserFailed(result)
+        result = await self.http.request("GET", f"/users/{id if id is not None else '@me'}")
+        return User(self,  result)
 
     async def fetch_guild(self, guild_id: int, with_count: bool = False):
         """Fetch a Guild by ID.
-        
+
         Args:
             guild_id (int): Guild ID.
             with_count (bool, optional): if True, will return approximate member and presence counts for the guild. (default False)
 
         Returns:
             Guild: Found guild object.
-
-        Raises:
-            FetchGuildFailed: Fetching the guild is failed.
         """
 
         from .guild import Guild
 
-        atom, result = await self.http.request("GET", f"/guilds/{guild_id}?with_count={with_count}")
-
-        if atom == 0:
-            return Guild(self, result)
-        else:
-            raise FetchGuildFailed(result)
+        result = await self.http.request("GET", f"/guilds/{guild_id}?with_count={with_count}")
+        return Guild(self, result)
 
     async def edit(self, username: str, path: str):
         """Edit client user.
@@ -303,19 +273,12 @@ class Client:
 
         Returns:
             User: Updated user.
-
-        Raises:
-            ModifyClientUserFailed: Editing the client user is failed.
         """
 
         from .user import User
 
-        atom, result = await self.http.request("PATCH", f"/users/@me", json={
+        result = await self.http.request("PATCH", f"/users/@me", json={
             "username": username,
             "avatar": image_to_data_uri(path)
         })
-
-        if atom == 0:
-            return User(self,  result)
-        else:
-            raise ModifyClientUserFailed(result)
+        return User(self,  result)

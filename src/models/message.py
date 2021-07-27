@@ -8,7 +8,6 @@ from datetime import datetime
 from typing import Union
 from urllib.parse import quote
 from ..utils import convert_iso, dict_to_query
-from ..errors.message import *
 
 from json import dumps
 from aiohttp import FormData
@@ -184,17 +183,10 @@ class Message:
 
         Returns:
             True: Added successfully.
-
-        Raises:
-            CreateReactionFailed: Creating the reaction is failed.
         """
 
-        atom, result = await self.client.http.request("PUT", f"/channels/{self.channel_id}/messages/{self.id}/reactions/{quote(emoji)}/@me")
-
-        if atom == 0:
-            return True
-        else:
-            raise CreateReactionFailed(result)
+        await self.client.http.request("PUT", f"/channels/{self.channel_id}/messages/{self.id}/reactions/{quote(emoji)}/@me")
+        return True
 
     async def delete_reaction(self, emoji: str, user_id: int = None):
         """Delete a user's reaction from message.
@@ -205,17 +197,10 @@ class Message:
 
         Returns:
             True: Deleted successfully.
-
-        Raises:
-            DeleteReactionFailed: Deleting the reaction is failed.
         """
 
-        atom, result = await self.client.http.request("DELETE", f"/channels/{self.channel_id}/messages/{self.id}/reactions/{quote(emoji)}/{'@me' if user_id is None else user_id}")
-
-        if atom == 0:
-            return True
-        else:
-            raise DeleteReactionFailed(result)
+        await self.client.http.request("DELETE", f"/channels/{self.channel_id}/messages/{self.id}/reactions/{quote(emoji)}/{'@me' if user_id is None else user_id}")
+        return True
 
     async def fetch_reactions(self, emoji: str, **kwargs):
         """Fetch reactions from message.
@@ -226,19 +211,12 @@ class Message:
 
         Returns:
             list: List of user objects.
-
-        Raises:
-            FetchReactionsFailed: Fetching the reactions are failed.
         """
 
         from .user import User
 
-        atom, result = await self.client.http.request("GET", f"/channels/{self.channel_id}/messages/{self.id}/reactions/{quote(emoji)}{dict_to_query(kwargs)}")
-
-        if atom == 0:
-            return [User(self.client, i) for i in result]
-        else:
-            raise FetchReactionsFailed(result)
+        result = await self.client.http.request("GET", f"/channels/{self.channel_id}/messages/{self.id}/reactions/{quote(emoji)}{dict_to_query(kwargs)}")
+        return [User(self.client, i) for i in result]
 
     async def delete_reactions(self, emoji: str = None):
         """Delete / delete all reactions from message.
@@ -248,17 +226,10 @@ class Message:
 
         Returns:
             True: succesfully deleted reactions.
-
-        Raises:
-            DeleteReactionsFailed: Deleting the reactions are failed.
         """
 
-        atom, result = await self.client.http.request("DELETE", f"/channels/{self.channel_id}/messages/{self.id}/reactions{f'/{quote(emoji)}' if emoji is not None else ''}")
-
-        if atom == 0:
-            return True
-        else:
-            raise DeleteReactionsFailed(result)
+        await self.client.http.request("DELETE", f"/channels/{self.channel_id}/messages/{self.id}/reactions{f'/{quote(emoji)}' if emoji is not None else ''}")
+        return True
 
     async def edit(self, file: dict = None, **kwargs):
         """Edit the message.
@@ -269,9 +240,6 @@ class Message:
 
         Returns:
             Message: New message object.
-
-        Raises:
-            EditMessageFailed: Editing the message is failed.
         """
 
         params, payload = {}, FormData()
@@ -285,29 +253,18 @@ class Message:
         else:
             params["json"] = kwargs
 
-        atom, result = await self.client.http.request("PATCH", f"/channels/{self.channel_id}/messages/{self.id}", **params)
-
-        if atom == 0:
-            return Message(self.client, result)
-        else:
-            raise EditMessageFailed(result)
+        result = await self.client.http.request("PATCH", f"/channels/{self.channel_id}/messages/{self.id}", **params)
+        return Message(self.client, result)
 
     async def delete(self):
         """Delete the message.
 
         Returns:
             True: Deleted successfully
-
-        Raises:
-            DeleteMessageFailed: Deleting the message is failed.
         """
 
-        atom, result = await self.client.http.request("DELETE", f"/channels/{self.channel_id}/messages/{self.id}")
-
-        if atom == 0:
-            return True
-        else:
-            raise DeleteMessageFailed(result)
+        await self.client.http.request("DELETE", f"/channels/{self.channel_id}/messages/{self.id}")
+        return True
 
     async def reply(self, file: dict = None, **kwargs):
         """Reply to the message.
@@ -318,9 +275,6 @@ class Message:
 
         Returns:
             Message: Sent message object.
-
-        Raises:
-            SendMessageFailed: Sending the message is failed.
         """
 
         reply_data = {
@@ -341,43 +295,25 @@ class Message:
         else:
             params["json"] = reply_data
 
-        atom, result = await self.client.http.request("POST", f"/channels/{self.channel_id}/messages", **params)
-
-        if atom == 0:
-            return Message(self.client, result)
-        else:
-            raise SendMessageFailed(result)
+        result = await self.client.http.request("POST", f"/channels/{self.channel_id}/messages", **params)
+        return Message(self.client, result)
 
     async def pin(self):
         """Pin the message.
 
         Returns:
             True: Message pinned successfully.
-
-        Raises:
-            PinMessageFailed: Pinning the message is failed.
         """
 
-        atom, result = await self.client.http.request("PUT", f"/channels/{self.channel_id}/pins/{self.id}")
-
-        if atom == 0:
-            return True
-        else:
-            raise PinMessageFailed(result)
+        await self.client.http.request("PUT", f"/channels/{self.channel_id}/pins/{self.id}")
+        return True
 
     async def unpin(self):
         """Unpin the message.
 
         Returns:
             True: Message unpinned successfully.
-
-        Raises:
-            UnpinMessageFailed: Pinning the message is failed.
         """
 
-        atom, result = await self.client.http.request("DELETE", f"/channels/{self.channel_id}/pins/{self.id}")
-
-        if atom == 0:
-            return True
-        else:
-            raise UnpinMessageFailed(result)
+        await self.client.http.request("DELETE", f"/channels/{self.channel_id}/pins/{self.id}")
+        return True

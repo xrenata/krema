@@ -5,7 +5,6 @@ Models for guild and other related stuff.
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Union
-from ..errors.guild import *
 
 
 @dataclass
@@ -98,17 +97,10 @@ class Guild:
 
         Returns:
             list: List of Emoji objects.
-
-        Raises:
-            FetchEmojisFailed: Fetching the emojis is failed.
         """
 
-        atom, result = await self.client.http.request("GET", f"/guilds/{self.id}/emojis")
-
-        if atom == 0:
-            return [Emoji(self.client, i) for i in result]
-        else:
-            raise FetchEmojisFailed(result)
+        result = await self.client.http.request("GET", f"/guilds/{self.id}/emojis")
+        return [Emoji(self.client, i) for i in result]
 
     async def fetch_emoji(self, emoji_id: int):
         """Fetch a emoji from Guild.
@@ -118,17 +110,10 @@ class Guild:
 
         Returns:
             Emoji: Found emoji object.
-
-        Raises:
-            FetchEmojiFailed: Fetching the emojis is failed.
         """
 
-        atom, result = await self.client.http.request("GET", f"/guilds/{self.id}/emojis/{emoji_id}")
-
-        if atom == 0:
-            return Emoji(self.client, result)
-        else:
-            raise FetchEmojiFailed(result)
+        result = await self.client.http.request("GET", f"/guilds/{self.id}/emojis/{emoji_id}")
+        return Emoji(self.client, result)
 
     async def create_emoji(self, **kwargs):
         """Create a Guild emoji.
@@ -138,17 +123,10 @@ class Guild:
 
         Returns:
             Emoji: Created Emoji object.
-
-        Raises:
-            CreateEmojiFailed: Creating the guild emoji is failed.
         """
 
-        atom, result = await self.client.http.request("POST", f"/guilds/{self.id}/emojis", json=kwargs)
-
-        if atom == 0:
-            return Emoji(self.client, result)
-        else:
-            raise CreateEmojiFailed(result)
+        result = await self.client.http.request("POST", f"/guilds/{self.id}/emojis", json=kwargs)
+        return Emoji(self.client, result)
 
     async def update_emoji(self, emoji_id: int, **kwargs):
         """Update a Guild emoji.
@@ -159,17 +137,10 @@ class Guild:
 
         Returns:
             Emoji: Updated Emoji object.
-
-        Raises:
-            UpdateEmojiFailed: Updating the guild emoji is failed.
         """
 
-        atom, result = await self.client.http.request("PATCH", f"/guilds/{self.id}/emojis/{emoji_id}", json=kwargs)
-
-        if atom == 0:
-            return Emoji(self.client, result)
-        else:
-            raise UpdateEmojiFailed(result)
+        result = await self.client.http.request("PATCH", f"/guilds/{self.id}/emojis/{emoji_id}", json=kwargs)
+        return Emoji(self.client, result)
 
     async def delete_emoji(self, emoji_id: int):
         """Delete a Guild emoji.
@@ -179,17 +150,10 @@ class Guild:
 
         Returns:
             True: Emoji deleted successfully.
-
-        Raises:
-            DeleteEmojiFailed: Deleting the guild emoji is failed.
         """
 
-        atom, result = await self.client.http.request("DELETE", f"/guilds/{self.id}/emojis/{emoji_id}")
-
-        if atom == 0:
-            return True
-        else:
-            raise DeleteEmojiFailed(result)
+        await self.client.http.request("DELETE", f"/guilds/{self.id}/emojis/{emoji_id}")
+        return True
 
 
 @dataclass

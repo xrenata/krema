@@ -3,8 +3,9 @@ Http part of the krema.
 """
 
 import asyncio
+from typing import Union
 import aiohttp
-
+from .errors import *
 
 class HTTP:
     """Base class for HTTP.
@@ -21,7 +22,7 @@ class HTTP:
 
         pass
 
-    async def request(self, method: str, endpoint: str, **kwargs) -> tuple:
+    async def request(self, method: str, endpoint: str, **kwargs) -> Union[str, list, dict]:
         """Send a async request to the discord API.
 
         Args:
@@ -30,14 +31,11 @@ class HTTP:
             **kwargs Other parameters for request.
 
         Returns:
-            tuple: A tuple that contains an atom and result.
+            result (dict, list, str): Result from Discord API
 
-                Atom (0): Request successfully sent and got 2xx.
-
-                Atom (1): Request failed.
+        Raises:
+            All of the Exceptions from `krema.errors` may raise.
         """
-
-        result: tuple = ()
 
         async with aiohttp.ClientSession() as session:
             async with session.request(method, f"{self.url}{endpoint}", headers={"Authorization": self.client.token, "User-Agent": "krema"}, **kwargs) as response:
@@ -46,25 +44,33 @@ class HTTP:
                 except aiohttp.client_exceptions.ContentTypeError:
                     body_text = await response.text()
 
-                    if response.status >= 200 and response.status < 300:
-                        result = (0, "")
+                    if 300 > response.status >= 200:
+                        return ""
                     else:
-                        result = (1, body_text)
+                        self.__raise_for_status(response.status, body_text)
 
-                    return result
-
-                if response.status >= 200 and response.status < 300:
-                    result = (0, json_data)
-                    return result
+                if 300 > response.status >= 200:
+                    return json_data
                 else:
                     retry_after = json_data.get("retry_after")
 
                     if retry_after is not None:
                         return await self.__run_task_when_ratelimit_reset(retry_after, method, endpoint, **kwargs)
                     else:
-                        result = (1, json_data.get("message") or json_data)
-                        return result
+                        self.__raise_for_status(response.status, json_data.get("message") or json_data)
 
     async def __run_task_when_ratelimit_reset(self, ratelimit: float, method, endpoint, **kwargs):
         await asyncio.sleep(ratelimit + 0.1)
         return await self.request(method, endpoint, **kwargs)
+
+    def __raise_for_status(self, status: int, result: str):
+        if status == 404:
+            raise NotFound(result)
+        elif status == 403:
+            raise Forbidden(result)
+        elif status == 429:
+            raise RateLimited(result)
+        elif 600 > status >= 500:
+            raise ServerError(result)
+        else:
+            raise UnexceptedStatus(result)

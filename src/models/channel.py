@@ -9,9 +9,6 @@ from typing import Union
 from json import dumps
 from aiohttp import FormData
 
-from ..errors.message import SendMessageFailed
-from ..errors.channel import *
-
 
 @dataclass
 class Channel:
@@ -104,18 +101,11 @@ class Channel:
 
         Returns:
             list: List of message object.
-
-        Raises:
-            FetchChannelMessagesFailed: Fetching the messages from channel is failed.
         """
         from .message import Message
 
-        atom, result = await self.client.http.request("GET", f"/channels/{self.id}/messages?limit={limit}")
-
-        if atom == 0:
-            return [Message(self.client, i) for i in result]
-        else:
-            raise FetchChannelMessagesFailed(result)
+        result = await self.client.http.request("GET", f"/channels/{self.id}/messages?limit={limit}")
+        return [Message(self.client, i) for i in result]
 
     async def purge(self, limit: int = 2):
         """Bulk-delete messages from channel.
@@ -125,21 +115,15 @@ class Channel:
 
         Returns:
             list: List of purged? messages.
-
-        Raises:
-            BulkDeleteMessagesFailed: Channel purge is failed.
         """
 
         messages = await self.fetch_messages(limit)
 
-        atom, result = await self.client.http.request("POST", f"/channels/{self.id}/messages/bulk-delete", json={
+        await self.client.http.request("POST", f"/channels/{self.id}/messages/bulk-delete", json={
             "messages": [i.id for i in messages]
         })
 
-        if atom == 0:
-            return messages
-        else:
-            raise BulkDeleteMessagesFailed(result)
+        return messages
 
     async def send(self, file: dict = None, **kwargs):
         """Send message to the text-channel.
@@ -150,9 +134,6 @@ class Channel:
 
         Returns:
             Message: Sent message object.
-
-        Raises:
-            SendMessageFailed: Sending the message is failed.
         """
         from .message import Message
 
@@ -167,12 +148,8 @@ class Channel:
         else:
             params["json"] = kwargs
 
-        atom, result = await self.client.http.request("POST", f"/channels/{self.id}/messages", **params)
-
-        if atom == 0:
-            return Message(self.client, result)
-        else:
-            raise SendMessageFailed(result)
+        result = await self.client.http.request("POST", f"/channels/{self.id}/messages", **params)
+        return Message(self.client, result)
 
     async def edit(self, **kwargs):
         """Edit channel with API params.
@@ -182,34 +159,20 @@ class Channel:
 
         Returns:
             Channel: New channel.
-
-        Raises:
-            EditChannelFailed: Editing the channel is failed.
         """
 
-        atom, result = await self.client.http.request("PATCH", f"/channels/{self.id}", json=kwargs)
-
-        if atom == 0:
-            return Channel(self.client, result)
-        else:
-            raise EditChannelFailed(result)
+        result = await self.client.http.request("PATCH", f"/channels/{self.id}", json=kwargs)
+        return Channel(self.client, result)
 
     async def delete(self):
         """Delete channel.
 
         Returns:
             Channel: Deleted channel.
-
-        Raises:
-            DeleteChannelFailed: Editing the channel is failed.
         """
 
-        atom, result = await self.client.http.request("DELETE", f"/channels/{self.id}")
-
-        if atom == 0:
-            return Channel(self.client, result)
-        else:
-            raise DeleteChannelFailed(result)
+        result = await self.client.http.request("DELETE", f"/channels/{self.id}")
+        return Channel(self.client, result)
 
     async def fetch_message(self, message_id: int):
         """Fetch a message from channel by ID.
@@ -219,18 +182,11 @@ class Channel:
 
         Returns:
             Message: Found message.
-
-        Raises:
-            FetchChannelMessageFailed: Fetching the message is failed.
         """
         from .message import Message
 
-        atom, result = await self.client.http.request("GET", f"/channels/{self.id}/messages/{message_id}")
-
-        if atom == 0:
-            return Message(self.client, result)
-        else:
-            raise FetchChannelMessageFailed(result)
+        result = await self.client.http.request("GET", f"/channels/{self.id}/messages/{message_id}")
+        return Message(self.client, result)
 
     async def trigger_typing(self):
         """Trigger the Channel typing.
@@ -242,12 +198,8 @@ class Channel:
             StartTypingFailed: Triggering is failed.
         """
 
-        atom, result = await self.client.http.request("POST", f"/channels/{self.id}/typing")
-
-        if atom == 0:
-            return True
-        else:
-            raise StartTypingFailed(result)
+        await self.client.http.request("POST", f"/channels/{self.id}/typing")
+        return True
 
     async def fetch_pinned_messages(self):
         """Fetch pinned messages from Channel.
@@ -260,9 +212,5 @@ class Channel:
         """
         from .message import Message
 
-        atom, result = await self.client.http.request("GET", f"/channels/{self.id}/pins")
-
-        if atom == 0:
-            return [Message(self.client, i) for i in result]
-        else:
-            raise FetchPinnedMessagesFailed(result)
+        result = await self.client.http.request("GET", f"/channels/{self.id}/pins")
+        return [Message(self.client, i) for i in result]
