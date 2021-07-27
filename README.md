@@ -10,8 +10,9 @@
 - [x] Add Gateway Support
 - [X] Add HTTP Support
 - [X] Add Event Handler
-- [ ] Add Cache System
+- [X] Add Cache System
 - [ ] Add Models
+- [ ] Add Functions
 
 </div>
 
