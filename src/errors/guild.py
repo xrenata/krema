@@ -31,3 +31,9 @@ class DeleteEmojiFailed(Exception):
     """Raises when deleting the guild emoji is failed."""
 
     pass
+
+
+class FetchGuildFailed(Exception):
+    """Raises when fetching a guild is failed."""
+
+    pass

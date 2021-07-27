@@ -5,6 +5,7 @@ All errors are collected in here.
 from .message import *
 from .channel import *
 from .users import *
+from .guild import *
 
 
 class InvalidTokenError(Exception):

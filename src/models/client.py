@@ -3,7 +3,7 @@ Client model for krema.
 """
 
 from unikorn import kollektor
-from ..errors import FetchChannelFailed, InvalidTokenError, FetchUserFailed, ModifyClientUserFailed
+from ..errors import FetchChannelFailed, InvalidTokenError, FetchUserFailed, ModifyClientUserFailed, FetchGuildFailed
 from ..utils import image_to_data_uri
 
 
@@ -270,6 +270,29 @@ class Client:
             return User(self,  result)
         else:
             raise FetchUserFailed(result)
+
+    async def fetch_guild(self, guild_id: int, with_count: bool = False):
+        """Fetch a Guild by ID.
+        
+        Args:
+            guild_id (int): Guild ID.
+            with_count (bool, optional): if True, will return approximate member and presence counts for the guild. (default False)
+
+        Returns:
+            Guild: Found guild object.
+
+        Raises:
+            FetchGuildFailed: Fetching the guild is failed.
+        """
+
+        from .guild import Guild
+
+        atom, result = await self.http.request("GET", f"/guilds/{guild_id}?with_count={with_count}")
+
+        if atom == 0:
+            return Guild(self, result)
+        else:
+            raise FetchGuildFailed(result)
 
     async def edit(self, username: str, path: str):
         """Edit client user.
