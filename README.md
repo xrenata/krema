@@ -2,18 +2,52 @@
 <img src="https://avatars.githubusercontent.com/u/87482214?s=256&v=4" alt="krema"/>
 <h1>Krema</h1>
 <p>A fast, flexible and lightweight Discord API wrapper for Python.</p>
+<p><i>Krema is still not finished, So you only can use <b>dev</b> version with <a href="https://github.com/5elenay/unikorn">Unikorn</a>.</i></p>
+
+## Installation (Dev)
+
+`unikorn add kremayard krema -no-confirmation`
+
+## Example Ping-Pong Bot
+
+<div align="left">
+
+```py
+from unikorn import krema
+
+client = krema.Client(
+    intents=0x7fff
+)
+
+@client.event()
+async def message_create(message):
+    if message.author.bot: return
+
+    if message.content.startswith("!ping"):
+        await message.reply(
+            content=":ping_pong: Pong!"
+        )
+
+client.start("client token", bot=True)
+```
+
+</div>
 
 ## Todo
 
 <div align="left">
 
 - [x] Add Gateway Support
-- [X] Add HTTP Support
-- [X] Add Event Handler
-- [X] Add Cache System
+- [x] Add HTTP Support
+- [x] Add Event Handler
+- [x] Add Cache System
 - [ ] Add Models
 - [ ] Add Functions
 
 </div>
+
+## License
+
+This project is licensed under [MIT](https://opensource.org/licenses/MIT) license.
 
 </div>
