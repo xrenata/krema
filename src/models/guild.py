@@ -178,6 +178,45 @@ class Guild:
         await self.client.http.request("DELETE", f"/guilds/{self.id}/emojis/{emoji_id}")
         return True
 
+    async def fetch_channels(self):
+        """Fetch all Guild Channels.
+
+        Returns:
+            list: List of Channel objects. (Threads does not included.)
+        """
+
+        from .channel import Channel
+
+        result = await self.client.http.request("GET", f"/guilds/{self.id}/channels")
+        return [Channel(self.client, i) for i in result]
+
+    async def create_channel(self, **kwargs):
+        """Create Guild Channel with API params.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/guild#create-guild-channel-json-params
+
+        Returns:
+            Channel: Created Channel object.
+        """
+
+        from .channel import Channel
+
+        result = await self.client.http.request("POST", f"/guilds/{self.id}/channels", json=kwargs)
+        return Channel(self.client, result)
+
+    async def modify_channel_positions(self, parameters: list):
+        """Modifiy Guild Channel positions with API params.
+
+        Args:
+            parameters: JSON list that contains https://discord.com/developers/docs/resources/guild#modify-guild-channel-positions-json-params objects.
+
+        Returns:
+            True: Channel positions modified successfully.
+        """
+
+        await self.client.http.request("PATCH", f"/guilds/{self.id}/channels", json=parameters)
+        return True
 
 @dataclass
 class Emoji:

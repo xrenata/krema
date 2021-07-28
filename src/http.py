@@ -37,8 +37,13 @@ class HTTP:
             All of the Exceptions from `krema.errors` may raise.
         """
 
+        extra_header = {}
+
+        if "log_reason" in kwargs:
+            extra_header["X-Audit-Log-Reason"] = kwargs.get("log_reason")
+
         async with aiohttp.ClientSession() as session:
-            async with session.request(method, f"{self.url}{endpoint}", headers={"Authorization": self.client.token, "User-Agent": "krema"}, **kwargs) as response:
+            async with session.request(method, f"{self.url}{endpoint}", headers={"Authorization": self.client.token, "User-Agent": "krema", **extra_header}, **kwargs) as response:
                 try:
                     json_data = await response.json()
                 except aiohttp.client_exceptions.ContentTypeError:
