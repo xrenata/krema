@@ -292,8 +292,24 @@ class Client:
 
         from .user import User
 
-        result = await self.http.request("PATCH", f"/users/@me", json={
+        result = await self.http.request("PATCH", "/users/@me", json={
             "username": username,
             "avatar": image_to_data_uri(path)
         })
         return User(self,  result)
+
+    async def edit_nickname(self, guild_id: int, nick: str):
+        """Edit Client User nickname from Guild.
+
+        Args:
+            guild_id (int): Guild ID.
+            nick (str): New nickname for Client User.
+
+        Returns:
+            True: Nickname updated successfully.
+        """
+
+        await self.http.request("PATCH", f"/guilds/{guild_id}/members/@me/nick", json={
+            "nick": nick
+        })
+        return True

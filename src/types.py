@@ -1,5 +1,5 @@
 """
-Krema part Perms, Types, Intents etc...
+Krema part for Perms, Types, Intents etc...
 """
 
 

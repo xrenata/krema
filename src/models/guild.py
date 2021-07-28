@@ -266,6 +266,22 @@ class Guild:
         result = await self.client.http.request("GET", f"/guilds/{self.id}/members/search{dict_to_query(kwargs)}")
         return [Member(self.client, i) for i in result]
 
+    async def edit_member(self, member_id: int, **kwargs):
+        """Edit a Guild Member with API params.
+        
+        Args:
+            member_id (int): Member ID.
+            **kwargs: https://discord.com/developers/docs/resources/guild#modify-guild-member-json-params
+
+        Returns:
+            Member: Updated Guild Member.
+        """
+
+        from .user import Member
+
+        result = await self.client.http.request("PATCH", f"/guilds/{self.id}/members/{member_id}", json=kwargs)
+        return Member(self.client, result)
+
 
 @dataclass
 class Emoji:
