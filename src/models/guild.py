@@ -92,6 +92,29 @@ class Guild:
         self.nsfw_level: int = data.get("nsfw_level")
         self.stage_instances: Union[list, None] = data.get("stage_instances")
 
+    async def edit(self, **kwargs):
+        """Modify the Guild with API params.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/guild#modify-guild-json-params
+
+        Returns:
+            Guild: Updated guild object.
+        """
+
+        result = await self.client.http.request("PATCH", f"/guilds/{self.id}", json=kwargs)
+        return Guild(self.client, result)
+
+    async def delete(self):
+        """Delete the Guild.
+
+        Returns:
+            True: Guild deleted successfully.
+        """
+
+        await self.client.http.request("DELETE", f"/guilds/{self.id}")
+        return True
+
     async def fetch_emojis(self):
         """Fetch all emojis in the Guild.
 

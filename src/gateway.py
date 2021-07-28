@@ -64,7 +64,7 @@ class Gateway:
 
         # Send Resume
         if self._session_id is not None:
-            print("resume at kardes")
+            # print("resume at kardes")
             await self.websocket.send_json({
                 "op": 6,
                 "d": {
@@ -121,7 +121,7 @@ class Gateway:
         if seq is not None:
             self._seq = seq
 
-        print(self._seq, self._session_id)
+        # print(self._seq, self._session_id, asyncio.all_tasks(self._event_loop))
         print(message, end="\n\n")
 
         if opcode == self.HELLO:
@@ -203,5 +203,5 @@ class Gateway:
 
         # Reconnect
         if result == 1:
-            print("reconnect kardes.")
+            # print("reconnect.")
             await self.start_connection()

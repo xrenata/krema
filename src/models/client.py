@@ -248,6 +248,21 @@ class Client:
         result = await self.http.request("GET", f"/users/{id if id is not None else '@me'}")
         return User(self,  result)
 
+    async def create_guild(self, **kwargs):
+        """Create a Guild with API params.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/guild#create-guild-json-params.
+
+        Returns:
+            Guild: Created guild object.
+        """
+
+        from .guild import Guild
+
+        result = await self.http.request("POST", f"/guilds", json=kwargs)
+        return Guild(self, result)
+
     async def fetch_guild(self, guild_id: int, with_count: bool = False):
         """Fetch a Guild by ID.
 
