@@ -75,7 +75,7 @@ class Member:
         from ..utils import convert_iso
         self.client = client
 
-        self.user: Union[User, None] = data.get("user")
+        self.user: Union[User, None] = User(self.client, data.get("user")) if data.get("user") is not None else None
         self.nick: Union[str, None] = data.get("nick")
         self.roles: list = data.get("roles")
         self.pending: Union[bool, None] = data.get("pending")

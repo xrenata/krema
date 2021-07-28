@@ -5,6 +5,7 @@ Models for guild and other related stuff.
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Union
+from ..utils import convert_iso, dict_to_query
 
 
 @dataclass
@@ -19,7 +20,6 @@ class Guild:
     """
 
     def __init__(self, client, data: dict) -> None:
-        from ..utils import convert_iso
         from .user import Member
         from .channel import Channel
 
@@ -217,6 +217,55 @@ class Guild:
 
         await self.client.http.request("PATCH", f"/guilds/{self.id}/channels", json=parameters)
         return True
+
+    async def fetch_member(self, member_id: int):
+        """Fetch a Member from Guild.
+
+        Args:
+            member_id (int): Member ID.
+
+        Returns:
+            Member: Found Member.
+        """
+
+        from .user import Member
+
+        result = await self.client.http.request("GET", f"/guilds/{self.id}/members/{member_id}")
+        return Member(self.client, result)
+
+    async def fetch_member_list(self, **kwargs):
+        """Fetch list of Guild Member with API params.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/guild#list-guild-members-query-string-params
+
+        Returns:
+            list: List of Guild Members.
+        """
+
+        from .user import Member
+
+        result = await self.client.http.request("GET", f"/guilds/{self.id}/members{dict_to_query(kwargs)}")
+        return [Member(self.client, i) for i in result]
+
+    async def search_member(self, **kwargs):
+        """Search Guild Member with API params.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/guild#search-guild-members-query-string-params
+
+        Returns:
+            list: List of Guild Members.
+        """
+
+        from .user import Member
+
+        if "limit" not in kwargs:
+            kwargs["limit"] = 25
+
+        result = await self.client.http.request("GET", f"/guilds/{self.id}/members/search{dict_to_query(kwargs)}")
+        return [Member(self.client, i) for i in result]
+
 
 @dataclass
 class Emoji:
