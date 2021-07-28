@@ -200,7 +200,64 @@ class Client:
             (i[1:], local[i]) for i in local if i.startswith("_")
         )
 
-    # Gateway Function
+    # Cache Functions
+    # ==================
+
+    def get_guild(self, guild_id: int):
+        """Get Guild from Cache by ID.
+
+        Args:
+            guild_id (int): Guild ID.
+
+        Returns:
+            Guild: Found Guild object.
+            None: Guild is not Found.
+        """
+
+        result = self.guilds.find(lambda g: g.id == guild_id)
+
+        if result != kollektor.Nothing:
+            return result
+        else:
+            return None
+
+    def get_channel(self, channel_id: int):
+        """Get Channel from Cache by ID.
+
+        Args:
+            channel_id (int): Channel ID.
+
+        Returns:
+            Channel: Found Channel object.
+            None: Channel is not Found.
+        """
+
+        result = self.channels.find(lambda c: c.id == channel_id)
+
+        if result != kollektor.Nothing:
+            return result
+        else:
+            return None
+
+    def get_message(self, message_id: int):
+        """Get Message from Cache by ID.
+
+        Args:
+            message_id (int): Message ID.
+
+        Returns:
+            Message: Found Message object.
+            None: Message is not Found.
+        """
+
+        result = self.messages.find(lambda m: m.id == message_id)
+
+        if result != kollektor.Nothing:
+            return result
+        else:
+            return None
+
+    # Gateway Functions
     # ==================
 
     async def update_presence(self, packet: dict):
