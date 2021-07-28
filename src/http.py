@@ -73,6 +73,8 @@ class HTTP:
             raise NotFound(result)
         elif status == 403:
             raise Forbidden(result)
+        elif status == 400:
+            raise BadRequest(result)
         elif status == 429:
             raise RateLimited(result)
         elif 600 > status >= 500:

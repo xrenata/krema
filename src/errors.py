@@ -9,6 +9,12 @@ class NotFound(Exception):
     pass
 
 
+class BadRequest(Exception):
+    """Raises when Discord returns 400 (bad request)."""
+
+    pass
+
+
 class Forbidden(Exception):
     """Raises when Discord returns 403 (forbidden)."""
 
