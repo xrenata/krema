@@ -5,6 +5,7 @@ Models for guild and other related stuff.
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Union
+
 from ..utils import convert_iso, dict_to_query
 
 
@@ -281,6 +282,34 @@ class Guild:
 
         result = await self.client.http.request("PATCH", f"/guilds/{self.id}/members/{member_id}", json=kwargs)
         return Member(self.client, result)
+
+    async def add_member_role(self, member_id: int, role_id: int):
+        """Add a Role to Guild Member.
+
+        Args:
+            member_id (int): Member ID.
+            role_id (int): Role ID.
+
+        Returns:
+            True: Added role to Member successfully.
+        """
+
+        await self.client.http.request("PUT", f"/guilds/{self.id}/members/{member_id}/roles/{role_id}")
+        return True
+
+    async def remove_member_role(self, member_id: int, role_id: int):
+        """Remove a Role from Guild Member.
+
+        Args:
+            member_id (int): Member ID.
+            role_id (int): Role ID.
+
+        Returns:
+            True: Removed role from Member successfully.
+        """
+
+        await self.client.http.request("DELETE", f"/guilds/{self.id}/members/{member_id}/roles/{role_id}")
+        return True
 
 
 @dataclass
