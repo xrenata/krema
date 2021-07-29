@@ -3,15 +3,16 @@ Gateway part of the krema.
 """
 
 import asyncio
-import aiohttp
-from zlib import decompressobj
 from json import loads
+from typing import Union
+from zlib import decompressobj
+
+import aiohttp
 
 from .models import Message, Channel, Guild
 
 
 class Gateway:
-
     """Base class for gateway.
 
     Args:
@@ -39,14 +40,14 @@ class Gateway:
         self.token: str = self.client.formatted_token
 
         self.gateway: str = "wss://gateway.discord.gg/?v=9&encoding=json&compress=zlib-stream"
-        self.websocket: aiohttp._WSRequestContextManager = None
+        self.websocket = None
 
         self._buffer: bytearray = bytearray()
         self._zlib = decompressobj()
-        self._session: aiohttp.ClientSession = None
+        self._session: Union[aiohttp.ClientSession, None] = None
 
-        self._seq: int = None
-        self._session_id: str = None
+        self._seq: Union[int, None] = None
+        self._session_id: Union[str, None] = None
 
         self._event_loop = asyncio.get_event_loop()
 
@@ -140,16 +141,20 @@ class Gateway:
 
     async def __handle_event(self, event_data, event_type):
         if event_type in ("message_create", "message_update"):
+            if event_type == "message_update" and len(event_data) == 4:
+                # print("thread galiba bu")
+                return
+
             filtered = self.__filter_events(
-                event_type, (Message(self.client, event_data), ))
+                event_type, (Message(self.client, event_data),))
         elif event_type in ("guild_create", "guild_update"):
             filtered = self.__filter_events(
-                event_type, (Guild(self.client, event_data), ))
-        elif event_type in ("channel_create", "channel_update", "channel_delete"):
+                event_type, (Guild(self.client, event_data),))
+        elif event_type in ("channel_create", "channel_update", "channel_delete", "thread_create", "thread_update"):
             filtered = self.__filter_events(
-                event_type, (Channel(self.client, event_data), ))
+                event_type, (Channel(self.client, event_data),))
         else:
-            filtered = self.__filter_events(event_type, (event_data, ))
+            filtered = self.__filter_events(event_type, (event_data,))
 
         await asyncio.gather(*filtered)
 

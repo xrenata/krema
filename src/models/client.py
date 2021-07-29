@@ -2,6 +2,8 @@
 Client model for krema.
 """
 
+from typing import Union
+
 from unikorn import kollektor
 from ..utils import image_to_data_uri
 
@@ -26,14 +28,15 @@ class Client:
         connection (HTTP): Client http class.
     """
 
-    def __init__(self, intents: int = 0, message_limit: int = 200, channel_limit: int = None, guild_limit: int = None) -> None:
+    def __init__(self, intents: int = 0, message_limit: int = 200, channel_limit: int = None,
+                 guild_limit: int = None) -> None:
         from .user import User
 
         self.intents: int = intents
 
         self.token: str = ""
         self.events: list = []
-        self.user: User = None
+        self.user: Union[User, None] = None
 
         self.messages: kollektor.Kollektor = kollektor.Kollektor(
             limit=message_limit, items=())
@@ -193,6 +196,28 @@ class Client:
                 self.channels.items = tuple(
                     i for i in self.channels.items if i.id != channel_packet.id)
 
+        # Thread Create Handler
+        async def _thread_create(channel):
+            self.channels.append(channel)
+
+        # Thread Update Handler
+        async def _thread_update(channel_packet):
+            for index, channel in enumerate(self.channels.items):
+                if channel.id == channel_packet.id:
+                    self.channels.update(index, channel_packet)
+                    break
+
+        # Thread Delete Handler
+        async def _thread_delete(channel_packet):
+            channel_id = channel_packet.get("id")
+
+            if channel_id is None:
+                return
+            else:
+                channel_id = int(channel_id)
+                self.channels.items = tuple(
+                    i for i in self.channels.items if i.id != channel_id)
+
         local = locals()
 
         # Load Events
@@ -257,6 +282,30 @@ class Client:
         else:
             return None
 
+    def get_thread(self, thread_id: int, list_thread_result: dict):
+        """Get Thread-Channel with Thread ID.
+
+        Args:
+            thread_id (int): Thread-Channel ID.
+            list_thread_result (dict): The result from `<Channel>.list_...` functions.
+
+        Returns:
+            Channel: Found Thread-Channel object.
+            None: Thread-Channel is not Found.
+
+        Examples:
+            >>> channel = client.get_channel(123)
+            >>> thread_list = await channel.list_threads()
+            >>> client.get_thread(456, thread_list)
+            Channel()
+        """
+
+        for thread in list_thread_result["threads"]:
+            if thread_id == thread.id:
+                return thread
+
+        return None
+
     # Gateway Functions
     # ==================
 
@@ -288,7 +337,7 @@ class Client:
         from .channel import Channel
 
         result = await self.http.request("GET", f"/channels/{id}")
-        return Channel(self,  result)
+        return Channel(self, result)
 
     async def fetch_user(self, id: int = None):
         """Fetch an User by ID.
@@ -303,7 +352,7 @@ class Client:
         from .user import User
 
         result = await self.http.request("GET", f"/users/{id if id is not None else '@me'}")
-        return User(self,  result)
+        return User(self, result)
 
     async def create_guild(self, **kwargs):
         """Create a Guild with API params.
@@ -353,7 +402,7 @@ class Client:
             "username": username,
             "avatar": image_to_data_uri(path)
         })
-        return User(self,  result)
+        return User(self, result)
 
     async def edit_nickname(self, guild_id: int, nick: str):
         """Edit Client User nickname from Guild.

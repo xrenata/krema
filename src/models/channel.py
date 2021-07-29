@@ -4,10 +4,13 @@ Models for channel and other related stuff.
 
 from dataclasses import dataclass
 from datetime import datetime
+from json import dumps
 from typing import Union
 
-from json import dumps
 from aiohttp import FormData
+
+from .user import ThreadMember
+from ..utils import dict_to_query
 
 
 @dataclass
@@ -214,6 +217,148 @@ class Channel:
 
         result = await self.client.http.request("GET", f"/channels/{self.id}/pins")
         return [Message(self.client, i) for i in result]
+
+    async def start_thread(self, **kwargs):
+        """Start a new Thread without Message.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/channel#start-thread-without-message-json-params
+
+        Returns:
+            Channel: Created Thread Channel.
+        """
+        result = await self.client.http.request("POST", f"/channels/{self.id}/threads", json=kwargs)
+        return Channel(self.client, result)
+
+    async def list_threads(self):
+        """List all of the active Threads in the Channel.
+        
+        Returns:
+            dict: A dict that contains;
+
+                threads (list): List of Channel objects.
+
+                members (list): List of ThreadMember objects.
+
+                has_more (bool): whether there are potentially additional threads that could be returned on a subsequent call.
+        """
+
+        result = await self.client.http.request("GET", f"/channels/{self.id}/threads/active")
+
+        result["threads"] = [Channel(self.client, i) for i in result["threads"]]
+        result["members"] = [ThreadMember(i) for i in result["members"]]
+
+        return result
+
+    async def list_thread_members(self):
+        """List Thread-Members in the Thread-Channel.
+        
+        Returns:
+            list: List of ThreadMember objects.
+        """
+
+        result = await self.client.http.request("GET", f"/channels/{self.id}/thread-members")
+        return [ThreadMember(i) for i in result]
+
+    async def add_to_thread(self, member_id: int = None):
+        """Add a Member to the Thread-Channel. (Channel must be a Thread-Channel.)
+        
+        Args:
+            member_id (int, optional): The Member will be Added to the Thread-Channel. (if not set, ClientUser will added.) 
+
+        Returns:
+            True: Added successfully.
+        """
+
+        await self.client.http.request("PUT",
+                                       f"/channels/{self.id}/thread-members/{'@me' if member_id is None else member_id}")
+        return True
+
+    async def remove_from_thread(self, member_id: int = None):
+        """Remove a Member from Thread-Channel. (Channel must be a Thread-Channel.)
+        
+        Args:
+            member_id (int, optional): The Member will be Removed from Thread-Channel. (if not set, ClientUser will removed.) 
+
+        Returns:
+            True: Removed successfully.
+        """
+
+        await self.client.http.request("DELETE",
+                                       f"/channels/{self.id}/thread-members/{'@me' if member_id is None else member_id}")
+        return True
+
+    async def list_public_archived_threads(self, **kwargs):
+        """List all of the public-archived Threads in the Channel.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/channel#list-public-archived-threads-query-string-params
+
+        Returns:
+            dict: A dict that contains;
+
+                threads (list): List of Channel objects.
+
+                members (list): List of ThreadMember objects.
+
+                has_more (bool): whether there are potentially additional threads that could be returned on a subsequent call.
+        """
+
+        result = await self.client.http.request("GET",
+                                                f"/channels/{self.id}/threads/archived/public{dict_to_query(kwargs)}")
+
+        result["threads"] = [Channel(self.client, i) for i in result["threads"]]
+        result["members"] = [ThreadMember(i) for i in result["members"]]
+
+        return result
+
+    async def list_private_archived_threads(self, **kwargs):
+        """List all of the private-archived Threads in the Channel.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/channel#list-private-archived-threads-query-string-params
+
+        Returns:
+            dict: A dict that contains;
+
+                threads (list): List of Channel objects.
+
+                members (list): List of ThreadMember objects.
+
+                has_more (bool): whether there are potentially additional threads that could be returned on a subsequent call.
+        """
+
+        result = await self.client.http.request("GET",
+                                                f"/channels/{self.id}/threads/archived/private{dict_to_query(kwargs)}")
+
+        result["threads"] = [Channel(self.client, i) for i in result["threads"]]
+        result["members"] = [ThreadMember(i) for i in result["members"]]
+
+        return result
+
+    async def list_joined_private_archived_threads(self, **kwargs):
+        """List all of the joined private-archived Threads in the Channel.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/channel#list-joined-private-archived-threads-query-string-params
+
+        Returns:
+            dict: A dict that contains;
+
+                threads (list): List of Channel objects.
+
+                members (list): List of ThreadMember objects.
+
+                has_more (bool): whether there are potentially additional threads that could be returned on a subsequent call.
+        """
+
+        result = await self.client.http.request("GET",
+                                                f"/channels/{self.id}/users/@me/threads/archived/private{dict_to_query(kwargs)}")
+
+        result["threads"] = [Channel(self.client, i) for i in result["threads"]]
+        result["members"] = [ThreadMember(i) for i in result["members"]]
+
+        return result
 
     # async def edit_position(self, position: int, lock_permissions: bool = None, parent_id: int = None):
     #     """Edit Channel Position.

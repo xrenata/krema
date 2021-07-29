@@ -317,3 +317,17 @@ class Message:
 
         await self.client.http.request("DELETE", f"/channels/{self.channel_id}/pins/{self.id}")
         return True
+
+    async def start_thread(self, **kwargs):
+        """Start a new Thread from Message.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/channel#start-thread-with-message-json-params
+
+        Returns:
+            Channel: Created Thread Channel.
+        """
+        from .channel import Channel
+
+        result = await self.client.http.request("POST", f"/channels/{self.channel_id}/messages/{self.id}/threads", json=kwargs)
+        return Channel(self.client, result)
