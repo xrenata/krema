@@ -446,3 +446,34 @@ class Ban:
 
         self.reason: Union[str, None] = data.get("reason")
         self.user: User = User(self.client, data.get("user"))
+
+
+@dataclass
+class Role:
+    """Role class.
+
+    Args:
+        data (dict): Sent packet from websocket.
+
+    Attributes:
+        id (int): Role ID.
+        name (str): Role name.
+        color (int): Role color.
+        hoist (bool): If this role is pinned in the user listing.
+        position (int): Role position.
+        permissions (str): Permission bit set.
+        managed (bool): Whether this role is managed by an integration.
+        mentionable (bool): Whether this role is mentionable.
+        tags (dict, None): Role tags object.
+    """
+
+    def __init__(self, data: dict) -> None:
+        self.id: int = int(data.get("id"))
+        self.name: str = data.get("name")
+        self.color: int = data.get("color")
+        self.hoist: bool = data.get("hoist")
+        self.position: int = data.get("position")
+        self.permissions: str = data.get("permissions")
+        self.managed: bool = data.get("managed")
+        self.mentionable: bool = data.get("mentionable")
+        self.tags: dict = data.get("tags")
