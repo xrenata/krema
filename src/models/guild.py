@@ -311,6 +311,43 @@ class Guild:
         await self.client.http.request("DELETE", f"/guilds/{self.id}/members/{member_id}/roles/{role_id}")
         return True
 
+    async def kick_member(self, member_id: int, reason: str = None):
+        """Kick Member from Guild.
+        
+        Args:
+            member_id (int): Member ID.
+            reason (str, optional): Kick reason.
+
+        Returns:
+            True: Member is kicked successfully.
+        """
+
+        extra = {}
+
+        if reason is not None:
+            extra["log_reason"] = reason
+
+        await self.client.http.request("DELETE", f"/guilds/{self.id}/members/{member_id}", **extra)
+        return True
+
+    async def ban_member(self, member_id: int, reason: str = None):
+        """Ban Member from Guild.
+        
+        Args:
+            member_id (int): Member ID.
+            reason (str, optional): Ban reason.
+
+        Returns:
+            True: Member is banned successfully.
+        """
+
+        extra = {}
+
+        if reason is not None:
+            extra["log_reason"] = reason
+
+        await self.client.http.request("PUT", f"/guilds/{self.id}/bans/{member_id}", **extra)
+        return True
 
 @dataclass
 class Emoji:
