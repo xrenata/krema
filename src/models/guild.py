@@ -330,18 +330,19 @@ class Guild:
         await self.client.http.request("DELETE", f"/guilds/{self.id}/members/{member_id}", **extra)
         return True
 
-    async def ban_member(self, member_id: int, reason: str = None):
+    async def ban_member(self, member_id: int, reason: str = None, **kwargs):
         """Ban Member from Guild.
 
         Args:
             member_id (int): Member ID.
             reason (str, optional): Ban reason.
+            **kwargs: https://discord.com/developers/docs/resources/guild#create-guild-ban-json-params
 
         Returns:
             True: Member is banned successfully.
         """
 
-        extra = {}
+        extra = {"json": kwargs}
 
         if reason is not None:
             extra["log_reason"] = reason
@@ -371,6 +372,25 @@ class Guild:
 
         result = await self.client.http.request("GET", f"/guilds/{self.id}/bans/{member_id}")
         return Ban(self.client, result)
+
+    async def unban_member(self, member_id: int, reason: str = None):
+        """Un-ban a Member from Guild.
+
+        Args:
+            member_id (int): Member ID.
+            reason (str, optional): un-ban reason.
+
+        Returns:
+            True: Member is un-banned successfully.
+        """
+
+        extra = {}
+
+        if reason is not None:
+            extra["log_reason"] = reason
+
+        await self.client.http.request("DELETE", f"/guilds/{self.id}/bans/{member_id}", **extra)
+        return True
 
 
 @dataclass
