@@ -269,7 +269,7 @@ class Guild:
 
     async def edit_member(self, member_id: int, **kwargs):
         """Edit a Guild Member with API params.
-        
+
         Args:
             member_id (int): Member ID.
             **kwargs: https://discord.com/developers/docs/resources/guild#modify-guild-member-json-params
@@ -313,7 +313,7 @@ class Guild:
 
     async def kick_member(self, member_id: int, reason: str = None):
         """Kick Member from Guild.
-        
+
         Args:
             member_id (int): Member ID.
             reason (str, optional): Kick reason.
@@ -332,7 +332,7 @@ class Guild:
 
     async def ban_member(self, member_id: int, reason: str = None):
         """Ban Member from Guild.
-        
+
         Args:
             member_id (int): Member ID.
             reason (str, optional): Ban reason.
@@ -348,6 +348,30 @@ class Guild:
 
         await self.client.http.request("PUT", f"/guilds/{self.id}/bans/{member_id}", **extra)
         return True
+
+    async def fetch_bans(self):
+        """Fetch all bans from Guild.
+
+        Returns:
+            list: List of Ban object.
+        """
+
+        result = await self.client.http.request("GET", f"/guilds/{self.id}/bans")
+        return [Ban(self.client, i) for i in result]
+
+    async def fetch_ban(self, member_id: int):
+        """Fetch a member ban from Guild.
+
+        Args:
+            member_id (int): Member ID.
+
+        Returns:
+            Ban: Found member's ban object.
+        """
+
+        result = await self.client.http.request("GET", f"/guilds/{self.id}/bans/{member_id}")
+        return Ban(self.client, result)
+
 
 @dataclass
 class Emoji:
@@ -379,3 +403,26 @@ class Emoji:
         self.managed: Union[bool, None] = data.get("managed")
         self.animated: Union[bool, None] = data.get("animated")
         self.available: Union[bool, None] = data.get("available")
+
+
+@dataclass
+class Ban:
+    """Ban class.
+
+    Args:
+        client (Client): Krema client.
+        data (dict): Sent packet from websocket.
+
+    Attributes:
+        client (Client): Krema client.
+        reason (str, None): Ban reason.
+        user (User): Banned user object.
+    """
+
+    def __init__(self, client, data: dict) -> None:
+        from .user import User
+
+        self.client = client
+
+        self.reason: Union[str, None] = data.get("reason")
+        self.user: User = User(self.client, data.get("user"))
