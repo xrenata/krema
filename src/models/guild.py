@@ -392,6 +392,29 @@ class Guild:
         await self.client.http.request("DELETE", f"/guilds/{self.id}/bans/{member_id}", **extra)
         return True
 
+    async def fetch_roles(self):
+        """Fetch all Guild Roles.
+
+        Returns:
+            list: List of Role objects.
+        """
+
+        result = await self.client.http.request("GET", f"/guilds/{self.id}/roles")
+        return [Role(i) for i in result]
+
+    async def create_role(self, **kwargs):
+        """Fetch all Guild Roles.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/guild#create-guild-role-json-params
+
+        Returns:
+            Role: Created Role object.
+        """
+
+        result = await self.client.http.request("POST", f"/guilds/{self.id}/roles", json=kwargs)
+        return Role(result)
+
 
 @dataclass
 class Emoji:
