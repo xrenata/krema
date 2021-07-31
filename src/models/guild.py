@@ -415,6 +415,46 @@ class Guild:
         result = await self.client.http.request("POST", f"/guilds/{self.id}/roles", json=kwargs)
         return Role(result)
 
+    async def modify_role_positions(self, parameters: list):
+        """Modifiy Guild Role positions with API params.
+
+        Args:
+            parameters: JSON list that contains https://discord.com/developers/docs/resources/guild#modify-guild-role-positions-json-params objects.
+
+        Returns:
+            list: List of all Guild Roles.
+        """
+
+        result = await self.client.http.request("PATCH", f"/guilds/{self.id}/roles", json=parameters)
+        return [Role(i) for i in result]
+
+    async def edit_role(self, role_id: int, **kwargs):
+        """Edit a Guild Role.
+
+        Args:
+            role_id (int): Role ID.
+            **kwargs: https://discord.com/developers/docs/resources/guild#modify-guild-role-json-params.
+
+        Returns:
+            Role: Updated Guild Role.
+        """
+
+        result = await self.client.http.request("PATCH", f"/guilds/{self.id}/roles/{role_id}", json=kwargs)
+        return Role(result)
+
+    async def delete_role(self, role_id: int):
+        """Delete a Guild Role.
+
+        Args:
+            role_id (int): Role ID.
+
+        Returns:
+            True: Role deleted successfully.
+        """
+
+        await self.client.http.request("DELETE", f"/guilds/{self.id}/roles/{role_id}")
+        return True
+
 
 @dataclass
 class Emoji:
