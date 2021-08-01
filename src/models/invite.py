@@ -28,6 +28,11 @@ class Invite:
         approximate_member_count (int, None): Approximate count of total members.
         expires_at (datetime, None): Invite expire time.
         stage_instance (dict, None): Stage instance data if there is a public Stage instance in the Stage channel this invite is for.
+        uses (int, None): Number of times this invite has been used.
+        max_uses (int, None): Max number of times this invite can be used.
+        max_age (int, None): Duration (in seconds) after which the invite expires.
+        temporary (bool, None): Whether this invite only grants temporary membership.
+        created_at (datetime, None): When this invite was created.
     """
 
     def __init__(self, client, data: dict) -> None:
@@ -56,3 +61,9 @@ class Invite:
         self.expires_at: Union[datetime, None] = convert_iso(
             data.get("expires_at")) if data.get("expires_at") is not None else None
         self.stage_instance: Union[dict, None] = data.get("stage_instance")
+        self.uses: Union[int, None] = data.get("uses")
+        self.max_uses: Union[int, None] = data.get("max_uses")
+        self.max_age: Union[int, None] = data.get("max_age")
+        self.temporary: Union[bool, None] = data.get("temporary")
+        self.created_at: Union[datetime, None] = convert_iso(
+            data.get("created_at")) if data.get("created_at") is not None else None
