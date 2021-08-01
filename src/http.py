@@ -43,6 +43,10 @@ class HTTP:
             extra_header["X-Audit-Log-Reason"] = kwargs.get("log_reason")
             del kwargs["log_reason"]
 
+        if "content_type" in kwargs:
+            extra_header["Content-Type"] = kwargs["content_type"]
+            del kwargs["content_type"]
+
         async with aiohttp.ClientSession() as session:
             async with session.request(method, f"{self.url}{endpoint}", headers={"Authorization": self.client.token, "User-Agent": "krema", **extra_header}, **kwargs) as response:
                 try:

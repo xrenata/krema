@@ -5,7 +5,7 @@ Client model for krema.
 from typing import Union
 
 from unikorn import kollektor
-from ..utils import image_to_data_uri
+from ..utils import dict_to_query, image_to_data_uri
 
 
 class Client:
@@ -419,3 +419,34 @@ class Client:
             "nick": nick
         })
         return True
+
+    async def fetch_invite(self, invite_code: str, **kwargs):
+        """Fetch Invite by Code.
+
+        Args:
+            invite_code (str): Invite Code.
+            **kwargs: https://discord.com/developers/docs/resources/invite#get-invite-query-string-params
+
+        Returns:
+            Invite: Found invite object.
+        """
+
+        from .invite import Invite
+
+        result = await self.http.request("GET", f"/invites/{invite_code}{dict_to_query(kwargs)}")
+        return Invite(self, result)
+
+    async def delete_invite(self, invite_code: str):
+        """Delete Invite by Code.
+
+        Args:
+            invite_code (str): Invite Code.
+
+        Returns:
+            Invite: Found invite object.
+        """
+
+        from .invite import Invite
+
+        result = await self.http.request("DELETE", f"/invites/{invite_code}")
+        return Invite(self, result)
