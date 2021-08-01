@@ -232,7 +232,7 @@ class Channel:
 
     async def list_threads(self):
         """List all of the active Threads in the Channel.
-        
+
         Returns:
             dict: A dict that contains;
 
@@ -245,14 +245,15 @@ class Channel:
 
         result = await self.client.http.request("GET", f"/channels/{self.id}/threads/active")
 
-        result["threads"] = [Channel(self.client, i) for i in result["threads"]]
+        result["threads"] = [Channel(self.client, i)
+                             for i in result["threads"]]
         result["members"] = [ThreadMember(i) for i in result["members"]]
 
         return result
 
     async def list_thread_members(self):
         """List Thread-Members in the Thread-Channel.
-        
+
         Returns:
             list: List of ThreadMember objects.
         """
@@ -262,7 +263,7 @@ class Channel:
 
     async def add_to_thread(self, member_id: int = None):
         """Add a Member to the Thread-Channel. (Channel must be a Thread-Channel.)
-        
+
         Args:
             member_id (int, optional): The Member will be Added to the Thread-Channel. (if not set, ClientUser will added.) 
 
@@ -276,7 +277,7 @@ class Channel:
 
     async def remove_from_thread(self, member_id: int = None):
         """Remove a Member from Thread-Channel. (Channel must be a Thread-Channel.)
-        
+
         Args:
             member_id (int, optional): The Member will be Removed from Thread-Channel. (if not set, ClientUser will removed.) 
 
@@ -307,7 +308,8 @@ class Channel:
         result = await self.client.http.request("GET",
                                                 f"/channels/{self.id}/threads/archived/public{dict_to_query(kwargs)}")
 
-        result["threads"] = [Channel(self.client, i) for i in result["threads"]]
+        result["threads"] = [Channel(self.client, i)
+                             for i in result["threads"]]
         result["members"] = [ThreadMember(i) for i in result["members"]]
 
         return result
@@ -331,7 +333,8 @@ class Channel:
         result = await self.client.http.request("GET",
                                                 f"/channels/{self.id}/threads/archived/private{dict_to_query(kwargs)}")
 
-        result["threads"] = [Channel(self.client, i) for i in result["threads"]]
+        result["threads"] = [Channel(self.client, i)
+                             for i in result["threads"]]
         result["members"] = [ThreadMember(i) for i in result["members"]]
 
         return result
@@ -355,10 +358,38 @@ class Channel:
         result = await self.client.http.request("GET",
                                                 f"/channels/{self.id}/users/@me/threads/archived/private{dict_to_query(kwargs)}")
 
-        result["threads"] = [Channel(self.client, i) for i in result["threads"]]
+        result["threads"] = [Channel(self.client, i)
+                             for i in result["threads"]]
         result["members"] = [ThreadMember(i) for i in result["members"]]
 
         return result
+
+    async def fetch_invites(self):
+        """Fetch Channel invites.
+
+        Returns:
+            list: List of Invite objects.
+        """
+
+        from .invite import Invite
+
+        result = await self.client.http.request("GET", f"/channels/{self.id}/invites")
+        return [Invite(self.client, i) for i in result]
+
+    async def create_invite(self, **kwargs):
+        """Create new invite in Channel.
+        
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/channel#create-channel-invite-json-params
+
+        Returns:
+            Invite: Created invite object.
+        """
+
+        from .invite import Invite
+
+        result = await self.client.http.request("POST", f"/channels/{self.id}/invites", json=kwargs)
+        return Invite(self.client, result)
 
     # async def edit_position(self, position: int, lock_permissions: bool = None, parent_id: int = None):
     #     """Edit Channel Position.
