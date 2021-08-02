@@ -4,6 +4,9 @@ Models for webhook and other related stuff.
 
 from dataclasses import dataclass
 from typing import Union
+from ..utils import dict_to_query
+from json import dumps
+from aiohttp import FormData
 
 
 @dataclass
@@ -76,4 +79,29 @@ class Webhook:
         """
 
         await self.client.http.request("DELETE", f"/webhooks/{self.id}")
+        return True
+
+    async def execute(self, file: dict = None, query: dict = {}, **kwargs):
+        """Execute the Webhook.
+
+        Args:
+            file (dict): For send a message / embed attachment with file, use `krema.utils.file_builder` for make it easier.
+            query (dict): https://discord.com/developers/docs/resources/webhook#execute-webhook-query-string-params
+            **kwargs: https://discord.com/developers/docs/resources/webhook#execute-webhook-jsonform-params
+
+        Returns:
+            True: Webhook executed successfully.
+        """
+        params, payload = {}, FormData()
+
+        if file is not None:
+            payload.add_field(name='payload_json', value=dumps(
+                kwargs), content_type="application/json")
+            payload.add_field(**file)
+
+            params["data"] = payload
+        else:
+            params["json"] = kwargs
+
+        await self.client.http.request("POST", f"/webhooks/{self.id}/{self.token}{dict_to_query(query)}", **params)
         return True
