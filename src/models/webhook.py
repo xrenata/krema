@@ -54,3 +54,26 @@ class Webhook:
         self.source_channel: Union[Channel, None] = Channel(self.client, data.get(
             "source_channel")) if data.get("source_channel") is not None else None
         self.url: Union[str, None] = data.get("url")
+
+    async def edit(self, **kwargs):
+        """Edit Webhook.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/webhook#modify-webhook-json-params
+
+        Returns:
+            Webhook: Updated Webhook object.
+        """
+
+        result = await self.client.http.request("PATCH", f"/webhooks/{self.id}", json=kwargs)
+        return Webhook(self.client, result)
+
+    async def delete(self):
+        """Delete Webhook.
+
+        Returns:
+            True: Webhook deleted successfully.
+        """
+
+        await self.client.http.request("DELETE", f"/webhooks/{self.id}")
+        return True
