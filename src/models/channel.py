@@ -378,7 +378,7 @@ class Channel:
 
     async def create_invite(self, **kwargs):
         """Create new invite in Channel.
-        
+
         Args:
             **kwargs: https://discord.com/developers/docs/resources/channel#create-channel-invite-json-params
 
@@ -390,6 +390,33 @@ class Channel:
 
         result = await self.client.http.request("POST", f"/channels/{self.id}/invites", json=kwargs)
         return Invite(self.client, result)
+
+    async def create_webhook(self, **kwargs):
+        """Create a Webhook.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/webhook#create-webhook-json-params
+
+        Returns:
+            Webhook: Created Webhook object.
+        """
+
+        from .webhook import Webhook
+
+        result = await self.client.http.request("POST", f"/channels/{self.id}/webhooks", json=kwargs)
+        return Webhook(self.client, result)
+
+    async def fetch_webhooks(self):
+        """Fetch all Webhooks in the Channel.
+
+        Returns:
+            list: List of Webhook objects.
+        """
+
+        from .webhook import Webhook
+
+        result = await self.client.http.request("GET", f"/channels/{self.id}/webhooks")
+        return [Webhook(self.client, i) for i in result]
 
     # async def edit_position(self, position: int, lock_permissions: bool = None, parent_id: int = None):
     #     """Edit Channel Position.
