@@ -455,6 +455,18 @@ class Guild:
         await self.client.http.request("DELETE", f"/guilds/{self.id}/roles/{role_id}")
         return True
 
+    async def fetch_webhooks(self):
+        """Fetch all Webhooks in the Guild.
+
+        Returns:
+            list: List of Webhook objects.
+        """
+
+        from .webhook import Webhook
+
+        result = await self.client.http.request("GET", f"/guilds/{self.id}/webhooks")
+        return [Webhook(self.client, i) for i in result]
+
 
 @dataclass
 class Emoji:

@@ -450,3 +450,15 @@ class Client:
 
         result = await self.http.request("DELETE", f"/invites/{invite_code}")
         return Invite(self, result)
+
+    async def fetch_webhook(self, webhook_id: int):
+        """Fetch Webhook by ID.
+
+        Returns:
+            Webhook: Found Webhook object.
+        """
+
+        from .webhook import Webhook
+
+        result = await self.http.request("GET", f"/webhooks/{webhook_id}")
+        return Webhook(self, result)
