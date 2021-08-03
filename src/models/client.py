@@ -352,6 +352,7 @@ class Client:
         from .user import User
 
         result = await self.http.request("GET", f"/users/{id if id is not None else '@me'}")
+
         return User(self, result)
 
     async def create_guild(self, **kwargs):
@@ -401,6 +402,23 @@ class Client:
         result = await self.http.request("PATCH", "/users/@me", json={
             "username": username,
             "avatar": image_to_data_uri(path)
+        })
+        return User(self, result)
+
+    async def edit_banner_color(self, color: int):
+        """Change banned color.
+
+        Args:
+            color (int): New Banner Color.
+
+        Returns:
+            User: Updated user.
+        """
+
+        from .user import User
+
+        result = await self.http.request("PATCH", "/users/@me", json={
+            "accent_color": color
         })
         return User(self, result)
 

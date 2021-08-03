@@ -39,6 +39,9 @@ class User:
         self.username: str = data.get("username")
         self.discriminator: str = data.get("discriminator")
         self.avatar: Union[str, None] = data.get("avatar")
+        self.banner: Union[str, None] = data.get("banner")
+        self.banner_color: Union[str, None] = data.get("banner_color")
+        self.accent_color: Union[int, None] = data.get("accent_color")
         self.bot: bool = data.get("bot", False)
         self.system: Union[bool, None] = data.get("system")
         self.mfa_enabled: Union[bool, None] = data.get("mfa_enabled")
@@ -75,7 +78,8 @@ class Member:
         from ..utils import convert_iso
         self.client = client
 
-        self.user: Union[User, None] = User(self.client, data.get("user")) if data.get("user") is not None else None
+        self.user: Union[User, None] = User(self.client, data.get(
+            "user")) if data.get("user") is not None else None
         self.nick: Union[str, None] = data.get("nick")
         self.roles: list = data.get("roles")
         self.pending: Union[bool, None] = data.get("pending")
