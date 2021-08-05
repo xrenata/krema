@@ -480,3 +480,18 @@ class Client:
 
         result = await self.http.request("GET", f"/webhooks/{webhook_id}")
         return Webhook(self, result)
+
+    async def fetch_sticker(self, sticker_id: int):
+        """Fetch Sticker by ID.
+
+        Args:
+            sticker_id (int): Sticker ID.
+
+        Returns:
+            Sticker: Found Sticker object.
+        """
+
+        from .sticker import Sticker
+
+        result = await self.http.request("GET", f"/stickers/{sticker_id}")
+        return Sticker(self, result)
