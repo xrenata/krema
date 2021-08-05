@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Union
 
+from aiohttp.formdata import FormData
+
 from ..utils import convert_iso, dict_to_query
 
 
@@ -489,6 +491,42 @@ class Guild:
         from .sticker import Sticker
 
         result = await self.client.http.request("GET", f"/guilds/{self.id}/stickers/{sticker_id}")
+        return Sticker(self.client, result)
+
+    async def create_sticker(self, name: str, description: str, tags: str, image: str):
+        """Create a Sticker.
+
+        Args:
+            name (str): Sticker name.
+            description (str): Sticker description.
+            tags (str): The Discord name of a unicode emoji representing the sticker's expression (2-200 characters)
+            image (str): Image path to upload. (max 500kb.)
+
+        Returns:
+            Sticker: Created sticker object.
+        """
+
+        from .sticker import Sticker
+
+        data = FormData()
+
+        image_name = image.split('/')
+
+        if len(image_name) == 1:
+            image_name = image.split("\\")[-1]
+        else:
+            image_name = image_name[-1]
+
+        with open(image, "rb") as f:
+            image_data = f.read()
+
+        data.add_field(name="name", value=name)
+        data.add_field(name="description", value=description)
+        data.add_field(name="tags", value=tags)
+        data.add_field(name="file", value=image_data, filename=image_name,
+                       content_type=f"image/{image.split('.')[-1].replace('jpg', 'jpeg')}")
+
+        result = await self.client.http.request("POST", f"/guilds/{self.id}/stickers", data=data)
         return Sticker(self.client, result)
 
 

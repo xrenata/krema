@@ -50,3 +50,26 @@ class Sticker:
         self.user: Union[User, None] = User(self.client, data.get(
             "user")) if data.get("user") is not None else None
         self.sort_value: int = data.get("sort_value")
+
+    async def edit(self, **kwargs):
+        """Edit Sticker.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/sticker#modify-guild-sticker-json-params
+
+        Returns:
+            Sticker: Updated Sticker object.
+        """
+
+        result = await self.client.http.request("PATCH", f"/guilds/{self.guild_id}/stickers/{self.id}", json=kwargs)
+        return Sticker(self.client, result)
+
+    async def delete(self):
+        """Delete Sticker.
+
+        Returns:
+            True: Sticker deleted successfully.
+        """
+
+        await self.client.http.request("DELETE", f"/guilds/{self.guild_id}/stickers/{self.id}")
+        return True
