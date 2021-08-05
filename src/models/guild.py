@@ -467,6 +467,30 @@ class Guild:
         result = await self.client.http.request("GET", f"/guilds/{self.id}/webhooks")
         return [Webhook(self.client, i) for i in result]
 
+    async def list_stickers(self):
+        """List all of the stickers from Guild.
+
+        Returns:
+            list: List of Sticker objects.
+        """
+
+        from .sticker import Sticker
+
+        result = await self.client.http.request("GET", f"/guilds/{self.id}/stickers")
+        return [Sticker(self.client, i) for i in result]
+
+    async def fetch_sticker(self, sticker_id: int):
+        """Fetch Guild Sticker by ID.
+
+        Returns:
+            Sticker: Found sticker object.
+        """
+
+        from .sticker import Sticker
+
+        result = await self.client.http.request("GET", f"/guilds/{self.id}/stickers/{sticker_id}")
+        return Sticker(self.client, result)
+
 
 @dataclass
 class Emoji:
