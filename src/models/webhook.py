@@ -105,3 +105,59 @@ class Webhook:
 
         await self.client.http.request("POST", f"/webhooks/{self.id}/{self.token}{dict_to_query(query)}", **params)
         return True
+
+    async def fetch_message(self, message_id: int):
+        """Fetch Webhook Message by ID.
+
+        Args:
+            message_id (int): Webhook Message ID.
+
+        Returns:
+            Message: Found Message object.
+        """
+
+        from .message import Message
+
+        result = await self.client.http.request("POST", f"/webhooks/{self.id}/{self.token}/messages/{message_id}")
+        return Message(self.client, result)
+
+    async def edit_message(self, message_id: int, file: dict = None, **kwargs):
+        """Edit Webhook Message by ID.
+
+        Args:
+            message_id (int): Webhook Message ID.
+            file (dict): For send a message / embed attachment with file, use `krema.utils.file_builder` for make it easier.
+            **kwargs: https://discord.com/developers/docs/resources/webhook#edit-webhook-message-jsonform-params
+
+        Returns:
+            Message: Updated Message object.
+        """
+
+        from .message import Message
+
+        params, payload = {}, FormData()
+
+        if file is not None:
+            payload.add_field(name='payload_json', value=dumps(
+                kwargs), content_type="application/json")
+            payload.add_field(**file)
+
+            params["data"] = payload
+        else:
+            params["json"] = kwargs
+
+        result = await self.client.http.request("PATCH", f"/webhooks/{self.id}/{self.token}/messages/{message_id}", **params)
+        return Message(self.client, result)
+
+    async def delete_message(self, message_id: int):
+        """Delete Webhook Message by ID.
+
+        Args:
+            message_id (int): Webhook Message ID.
+
+        Returns:
+            True: Message deleted successfully.
+        """
+
+        await self.client.http.request("DELETE", f"/webhooks/{self.id}/{self.token}/messages/{message_id}")
+        return True
