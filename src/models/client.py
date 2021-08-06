@@ -2,6 +2,7 @@
 Client model for krema.
 """
 
+from dataclasses import dataclass
 from typing import Union
 
 from unikorn import kollektor
@@ -495,3 +496,51 @@ class Client:
 
         result = await self.http.request("GET", f"/stickers/{sticker_id}")
         return Sticker(self, result)
+
+    # async def create_global_slash_command(self, **kwargs):
+    #     """Create a global slash command.
+
+    #     Args:
+    #         params (dict): Slash command parameters.
+
+    #     Returns:
+    #         True: Command added successfully.
+    #     """
+
+    #     result = await self.http.request("POST", f"/applications/{self.user.id}/commands", json=kwargs)
+    #     return True
+
+
+@dataclass
+class Interaction:
+    """Interaction class.
+
+    Args:
+        client (Client): Krema client.
+        data (dict): Sent packet from websocket.
+
+    Attributes:
+        client (Client): Krema client.
+        Other things are same with https://discord.com/developers/docs/interactions/slash-commands#interaction-object-interaction-structure.
+    """
+
+    def __init__(self, client, data: dict) -> None:
+        from .user import Member, User
+        from .message import Message
+
+        self.id: int = int(data.get("id"))
+        self.application_id: int = int(data.get("application_id"))
+        self.type: int = data.get("type")
+        self.data: Union[dict, None] = data.get("data")
+        self.guild_id: Union[int, None] = int(
+            data.get("guild_id")) if data.get("guild_id") is not None else None
+        self.channel_id: Union[int, None] = int(
+            data.get("channel_id")) if data.get("channel_id") is not None else None
+        self.member: Union[Member, None] = Member(self.client, data.get(
+            "member")) if data.get("member") is not None else None
+        self.user: Union[User, None] = User(self.client, data.get(
+            "user")) if data.get("user") is not None else None
+        self.token: str = data.get("token")
+        self.version: int = data.get("version")
+        self.message: Union[Message, None] = Message(self.client, data.get(
+            "message")) if data.get("message") is not None else None
