@@ -628,3 +628,16 @@ class ApplicationCommand:
 
         await self.client.http.request("DELETE", f"/applications/{self.application_id}/{f'guilds/{self.guild_id}/' if self.guild_id is not None else ''}commands/{self.id}")
         return True
+
+    async def edit(self, **kwargs):
+        """Edit application command.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/interactions/slash-commands#edit-guild-application-command-json-params
+
+        Returns:
+            ApplicationCommand: Updated command application object.
+        """
+
+        result = await self.client.http.request("PATCH", f"/applications/{self.application_id}/{f'guilds/{self.guild_id}/' if self.guild_id is not None else ''}commands/{self.id}", json=kwargs)
+        return ApplicationCommand(self.client, result)
