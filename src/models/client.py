@@ -510,6 +510,29 @@ class Client:
     #     result = await self.http.request("POST", f"/applications/{self.user.id}/commands", json=kwargs)
     #     return True
 
+    async def fetch_application_commands(self):
+        """Fetch global application commands.
+
+        Returns:
+            list: List of ApplicationCommand objects.
+        """
+
+        result = await self.http.request("GET", f"/applications/{self.user.id}/commands")
+        return [ApplicationCommand(i) for i in result]
+
+    async def fetch_application_command(self, command_id: int):
+        """Fetch global application command by ID.
+
+        Args:
+            command_id (int): Command ID.
+
+        Returns:
+            ApplicationCommand: Found Command object.
+        """
+
+        result = await self.http.request("GET", f"/applications/{self.user.id}/commands/{command_id}")
+        return ApplicationCommand(result)
+
 
 @dataclass
 class Interaction:

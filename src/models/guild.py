@@ -529,6 +529,21 @@ class Guild:
         result = await self.client.http.request("POST", f"/guilds/{self.id}/stickers", data=data)
         return Sticker(self.client, result)
 
+    async def fetch_application_command(self, command_id: int):
+        """Fetch guild application command.
+
+        Args:
+            command_id (int): Command ID.
+
+        Returns:
+            ApplicationCommand: Found Command object.
+        """
+
+        from .client import ApplicationCommand
+
+        result = await self.client.http.request("GET", f"/applications/{self.client.user.id}/guilds/{self.id}/commands/{command_id}")
+        return ApplicationCommand(result)
+
 
 @dataclass
 class Emoji:
