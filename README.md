@@ -16,7 +16,7 @@
 from unikorn import krema
 
 client = krema.Client(
-    intents=0x7fff
+    intents=krema.types.Intents().All()
 )
 
 @client.event()
@@ -41,7 +41,7 @@ client.start("client token", bot=True)
 - [x] Add HTTP Support
 - [x] Add Event Handler
 - [x] Add Cache System
-- [ ] Add Models
+- [X] Add Models
 - [ ] Add Functions
 
 </div>
