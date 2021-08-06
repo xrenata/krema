@@ -563,3 +563,27 @@ class Interaction:
             "data": kwargs
         })
         return
+
+
+@dataclass
+class ApplicationCommand:
+    """Application command class.
+
+    Args:
+        client (Client): Krema client.
+        data (dict): Sent packet from websocket.
+
+    Attributes:
+        client (Client): Krema client.
+    """
+
+    def __init__(self, data: dict) -> None:
+        self.id: int = int(data.get("id"))
+        self.application_id: int = int(data.get("application_id"))
+        self.guild_id: Union[int, None] = int(
+            data.get("guild_id")) if data.get("guild_id") is not None else None
+        self.name: str = data.get("name")
+        self.description: str = data.get("description")
+        self.options: Union[list, None] = data.get("options")
+        self.default_permission: Union[bool,
+                                       None] = data.get("default_permission")
