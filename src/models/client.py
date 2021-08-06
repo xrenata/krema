@@ -518,7 +518,7 @@ class Client:
         """
 
         result = await self.http.request("GET", f"/applications/{self.user.id}/commands")
-        return [ApplicationCommand(i) for i in result]
+        return [ApplicationCommand(self, i) for i in result]
 
     async def fetch_application_command(self, command_id: int):
         """Fetch global application command by ID.
@@ -531,7 +531,7 @@ class Client:
         """
 
         result = await self.http.request("GET", f"/applications/{self.user.id}/commands/{command_id}")
-        return ApplicationCommand(result)
+        return ApplicationCommand(self, result)
 
 
 @dataclass
@@ -598,9 +598,17 @@ class ApplicationCommand:
 
     Attributes:
         client (Client): Krema client.
+        id (int): Command ID.
+        application_id (int): Application ID.
+        name (str): Command name.
+        description (str): Command description.
+        options (list, None): Command option(s).
+        default_permission (bool, None): Whether the command is enabled by default when the app is added to a guild.
     """
 
-    def __init__(self, data: dict) -> None:
+    def __init__(self, client, data: dict) -> None:
+        self.client = client
+
         self.id: int = int(data.get("id"))
         self.application_id: int = int(data.get("application_id"))
         self.guild_id: Union[int, None] = int(
@@ -610,3 +618,13 @@ class ApplicationCommand:
         self.options: Union[list, None] = data.get("options")
         self.default_permission: Union[bool,
                                        None] = data.get("default_permission")
+
+    async def delete(self):
+        """Delete application command.
+
+        Returns:
+            True: Command deleted successfully.
+        """
+
+        await self.client.http.request("DELETE", f"/applications/{self.application_id}/{f'guilds/{self.guild_id}/' if self.guild_id is not None else ''}commands/{self.id}")
+        return True

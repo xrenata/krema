@@ -542,7 +542,7 @@ class Guild:
         from .client import ApplicationCommand
 
         result = await self.client.http.request("GET", f"/applications/{self.client.user.id}/guilds/{self.id}/commands/{command_id}")
-        return ApplicationCommand(result)
+        return ApplicationCommand(self.client, result)
 
 
 @dataclass
