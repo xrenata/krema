@@ -546,3 +546,20 @@ class Interaction:
         self.version: int = data.get("version")
         self.message: Union[Message, None] = Message(self.client, data.get(
             "message")) if data.get("message") is not None else None
+
+    async def reply(self, type: int, **kwargs):
+        """Reply to the interaction (must be used for finish the interaction.).
+
+        Args:
+            type (int): https://discord.com/developers/docs/interactions/slash-commands#interaction-response-object-interaction-callback-type
+            **kwargs: https://discord.com/developers/docs/interactions/slash-commands#interaction-response-object-interaction-application-command-callback-data-structure
+
+        Returns:
+            True: Response sent successfully.
+        """
+
+        await self.client.http.request("POST", f"/interactions/{self.id}/{self.token}/callback", json={
+            "type": type,
+            "data": kwargs
+        })
+        return
