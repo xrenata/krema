@@ -528,6 +528,8 @@ class Interaction:
         from .user import Member, User
         from .message import Message
 
+        self.client = client
+
         self.id: int = int(data.get("id"))
         self.application_id: int = int(data.get("application_id"))
         self.type: int = data.get("type")
