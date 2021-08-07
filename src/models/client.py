@@ -307,6 +307,22 @@ class Client:
 
         return None
 
+    async def bulk_delete(self, channel_id: int, messages: list):
+        """Pure bulk-delete function.
+
+        Args:
+            channel_id (int): Channel ID.
+            messages (list): List of message IDs.
+
+        Returns:
+            True: Messages are deleted successfully.
+        """
+
+        await self.http.request("POST", f"/channels/{channel_id}/messages/bulk-delete", json={
+            "messages": messages
+        })
+        return True
+
     # Gateway Functions
     # ==================
 
