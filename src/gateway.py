@@ -10,7 +10,7 @@ from zlib import decompressobj
 import aiohttp
 
 from .models import Message, Channel, Guild
-from .models import Interaction
+from .models import Interaction, ApplicationCommand, User
 
 
 class Gateway:
@@ -157,6 +157,13 @@ class Gateway:
         elif event_type == "interaction_create":
             filtered = self.__filter_events(
                 event_type, (Interaction(self.client, event_data),))
+        elif event_type in ("application_command_create", "application_command_update", "application_command_delete"):
+            filtered = self.__filter_events(
+                event_type, (ApplicationCommand(self.client, event_data),))
+        elif event_type in ("guild_ban_add", "guild_ban_remove"):
+            event_data["user"] = User(self.client, event_data.get(
+                "user")) if event_data.get("user") else None
+            filtered = self.__filter_events(event_type, (event_data,))
         else:
             filtered = self.__filter_events(event_type, (event_data,))
 
