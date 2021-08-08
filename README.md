@@ -2,7 +2,6 @@
 <img src="https://avatars.githubusercontent.com/u/87482214?s=256&v=4" alt="krema"/>
 <h1>Krema</h1>
 <p>A fast, flexible and lightweight Discord API wrapper for Python.</p>
-<p><i>Krema is still not finished, So you only can use <b>dev</b> version with <a href="https://github.com/5elenay/unikorn">Unikorn</a>.</i></p>
 
 ## Installation
 
