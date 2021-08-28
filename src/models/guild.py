@@ -544,6 +544,29 @@ class Guild:
         result = await self.client.http.request("GET", f"/applications/{self.client.user.id}/guilds/{self.id}/commands/{command_id}")
         return ApplicationCommand(self.client, result)
 
+    async def fetch_integrations(self):
+        """Fetch guild integrations.
+
+        Returns:
+            list: List of Integration objects.
+        """
+
+        result = await self.client.http.request("GET", f"/guilds/{self.id}/integrations")
+        return [Integration(self.client, i) for i in result]
+
+    async def delete_integration(self, integration_id: int):
+        """Fetch guild integrations.
+
+        Args:
+            integration_id (int): Integration Id.
+
+        Returns:
+            True: Integration deleted successfully.
+        """
+
+        await self.client.http.request("DELETE", f"/guilds/{self.id}/integrations/{integration_id}")
+        return True
+
 
 @dataclass
 class Emoji:
@@ -630,6 +653,7 @@ class Role:
         self.mentionable: bool = data.get("mentionable")
         self.tags: dict = data.get("tags")
 
+
 @dataclass
 class Integration:
     """Integration class.
@@ -665,17 +689,22 @@ class Integration:
         self.type: str = data.get("type")
         self.enabled: bool = data.get("enabled")
         self.syncing: Union[bool, None] = data.get("syncing")
-        self.role_id: int = int(data.get("role_id")) if data.get("role_id") is not None else None
+        self.role_id: int = int(data.get("role_id")) if data.get(
+            "role_id") is not None else None
         self.enable_emoticons: Union[bool, None] = data.get("enable_emoticons")
         self.expire_behavior: Union[int, None] = data.get("expire_behavior")
-        self.expire_grace_period: Union[int, None] = data.get("expire_grace_period")
-        self.user: Union[User, None] = User(client, data.get("user")) if data.get("user") is not None else None
+        self.expire_grace_period: Union[int,
+                                        None] = data.get("expire_grace_period")
+        self.user: Union[User, None] = User(client, data.get(
+            "user")) if data.get("user") is not None else None
         self.account: dict = data.get("account")
         self.synced_at: Union[datetime, None] = convert_iso(
             data.get("synced_at")) if data.get("synced_at") is not None else None
         self.subscriber_count: Union[int, None] = data.get("subscriber_count")
         self.revoked: Union[bool, None] = data.get("revoked")
-        self.application: Union[IntegrationApplication, None] = IntegrationApplication(client, data.get("application")) if data.get("application") is not None else None
+        self.application: Union[IntegrationApplication, None] = IntegrationApplication(
+            client, data.get("application")) if data.get("application") is not None else None
+
 
 @dataclass
 class IntegrationApplication:
@@ -703,4 +732,5 @@ class IntegrationApplication:
         self.icon: Union[str, None] = data.get("icon")
         self.description: str = data.get("description")
         self.summary: str = data.get("summary")
-        self.bot: Union[User, None] = User(client, data.get("bot")) if data.get("bot") is not None else None
+        self.bot: Union[User, None] = User(client, data.get(
+            "bot")) if data.get("bot") is not None else None
