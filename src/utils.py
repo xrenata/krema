@@ -86,3 +86,28 @@ def image_to_data_uri(path: str):
         encrypt = b64encode(img_bytes).decode()
 
         return f"data:image/{f.name.split('.')[-1].replace('jpg', 'jpeg')};base64,{encrypt}"
+
+def paginate(text: str, max_len: int)-> list:
+    """
+    Simple generator that paginates text.
+
+    Args:
+        text (str): string.
+        max_len (int): How long after the text will be cut.
+
+    Returns:
+        list: Array with fragmented text.
+    """
+    last = 0
+    pages = []
+    for curr in range(0, len(text)):
+        if curr % max_len == 0:
+            pages.append(text[last:curr])
+            last = curr
+            appd_index = curr
+    if appd_index != len(text)-1:
+        pages.append(text[last:curr])
+    return [i for i in pages if i != ""]
+
+
+
