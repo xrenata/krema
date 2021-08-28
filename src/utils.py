@@ -87,9 +87,9 @@ def image_to_data_uri(path: str):
 
         return f"data:image/{f.name.split('.')[-1].replace('jpg', 'jpeg')};base64,{encrypt}"
 
-def paginate(text: str, max_len: int)-> list:
-    """
-    Simple generator that paginates text.
+
+def paginate(text: str, max_len: int) -> list:
+    """Simple generator that paginates text.
 
     Args:
         text (str): string.
@@ -97,17 +97,22 @@ def paginate(text: str, max_len: int)-> list:
 
     Returns:
         list: Array with fragmented text.
+
+    Examples:
+    >>> krema.utils.paginate("hello", 2)
+    ["he", "ll", "o"]
     """
+
     last = 0
     pages = []
+
     for curr in range(0, len(text)):
         if curr % max_len == 0:
             pages.append(text[last:curr])
             last = curr
             appd_index = curr
+
     if appd_index != len(text)-1:
         pages.append(text[last:curr])
+
     return [i for i in pages if i != ""]
-
-
-
