@@ -629,3 +629,78 @@ class Role:
         self.managed: bool = data.get("managed")
         self.mentionable: bool = data.get("mentionable")
         self.tags: dict = data.get("tags")
+
+@dataclass
+class Integration:
+    """Integration class.
+
+    Args:
+        client (Client): Krema client.
+        data (dict): Sent packet.
+
+    Attributes:
+        client (Client): Krema client.
+        id (int): Integration Id.
+        name (str): Integration name.
+        type (str): Integration type (twitch, youtube, or discord).
+        enabled (bool): Is this integration enabled.
+        syncing (bool, None): Is this integration syncing.
+        role_id (int, None): Id that this integration uses for "subscribers".
+        enable_emoticons (bool, None): Whether emoticons should be synced for this integration.
+        expire_behavior (int, None): The behavior of expiring subscribers.
+        expire_grace_period (int, None): The grace period (in days) before expiring subscribers .
+        user (User, None): User for this integration.
+        account (dict): Integration account information.
+        synced_at (datetime, None): When this integration was last synced.
+        subscriber_count (int, None): How many subscribers this integration has.
+        revoked (bool, None): Has this integration been revoked.
+        application (IntegrationApplication, None): The bot/OAuth2 application for discord integrations.
+    """
+
+    def __init__(self, client, data: dict) -> None:
+        from .user import User
+
+        self.id: int = int(data.get("id"))
+        self.name: str = data.get("name")
+        self.type: str = data.get("type")
+        self.enabled: bool = data.get("enabled")
+        self.syncing: Union[bool, None] = data.get("syncing")
+        self.role_id: int = int(data.get("role_id")) if data.get("role_id") is not None else None
+        self.enable_emoticons: Union[bool, None] = data.get("enable_emoticons")
+        self.expire_behavior: Union[int, None] = data.get("expire_behavior")
+        self.expire_grace_period: Union[int, None] = data.get("expire_grace_period")
+        self.user: Union[User, None] = User(client, data.get("user")) if data.get("user") is not None else None
+        self.account: dict = data.get("account")
+        self.synced_at: Union[datetime, None] = convert_iso(
+            data.get("synced_at")) if data.get("synced_at") is not None else None
+        self.subscriber_count: Union[int, None] = data.get("subscriber_count")
+        self.revoked: Union[bool, None] = data.get("revoked")
+        self.application: Union[IntegrationApplication, None] = IntegrationApplication(client, data.get("application")) if data.get("application") is not None else None
+
+@dataclass
+class IntegrationApplication:
+    """Integration application class.
+
+    Args:
+        client (Client): Krema client.
+        data (dict): Sent packet.
+
+    Attributes:
+        client (Client): Krema client.
+        id (int): App Id.
+        name (str): App name.
+        icon (str, None): App icon hash.
+        description (str): App description.
+        summary (str): App summary.
+        bot (User, None): The bot associated with this application.
+    """
+
+    def __init__(self, client, data: dict) -> None:
+        from .user import User
+
+        self.id: int = int(data.get("id"))
+        self.name: str = data.get("string")
+        self.icon: Union[str, None] = data.get("icon")
+        self.description: str = data.get("description")
+        self.summary: str = data.get("summary")
+        self.bot: Union[User, None] = User(client, data.get("bot")) if data.get("bot") is not None else None
