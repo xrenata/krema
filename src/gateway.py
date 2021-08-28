@@ -6,6 +6,8 @@ import asyncio
 from json import loads
 from typing import Union
 from zlib import decompressobj
+import traceback
+import sys
 
 import aiohttp
 
@@ -134,7 +136,17 @@ class Gateway:
             if event_type in (i[0] for i in self.client.events):
                 # self._event_loop.create_task(
                 #    self.__handle_event(data, event_type))
-                await self.__handle_event(data, event_type)
+                try:
+                    await self.__handle_event(data, event_type)
+                except Exception as error:
+                    error = getattr(error, 'original', error)
+                    print("Unexcepted error while handling the event: ",
+                          file=sys.stderr)
+                    traceback.print_exception(
+                        type(error),
+                        error,
+                        error.__traceback__,
+                        file=sys.stderr)
 
         # Reconnect
         elif opcode == self.RECONNECT:

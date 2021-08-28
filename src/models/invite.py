@@ -40,17 +40,15 @@ class Invite:
         from .channel import Channel
         from .user import User
 
-        self.client = client
-
         self.code: str = data.get("code")
-        self.guild: Union[Guild, None] = Guild(self.client, data.get(
+        self.guild: Union[Guild, None] = Guild(client, data.get(
             "guild")) if data.get("guild") is not None else None
-        self.channel: Union[Channel, None] = Channel(self.client, data.get(
+        self.channel: Union[Channel, None] = Channel(client, data.get(
             "channel")) if data.get("channel") is not None else None
-        self.inviter: Union[User, None] = User(self.client, data.get(
+        self.inviter: Union[User, None] = User(client, data.get(
             "inviter")) if data.get("inviter") is not None else None
         self.target_type: Union[int, None] = data.get("target_type")
-        self.target_user: Union[User, None] = User(self.client, data.get(
+        self.target_user: Union[User, None] = User(client, data.get(
             "target_user")) if data.get("target_user") is not None else None
         self.target_application: Union[dict,
                                        None] = data.get("target_application")

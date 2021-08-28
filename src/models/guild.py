@@ -567,6 +567,18 @@ class Guild:
         await self.client.http.request("DELETE", f"/guilds/{self.id}/integrations/{integration_id}")
         return True
 
+    async def fetch_vanity_url(self):
+        """Fetch vanity url for guild.
+
+        Returns:
+            Invite: Partial invite object.
+        """
+
+        from .invite import Invite
+
+        result = await self.client.http.request("GET", f"/guilds/{self.id}/vanity-url")
+        return Invite(self.client, result)
+
 
 @dataclass
 class Emoji:
