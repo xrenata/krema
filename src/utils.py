@@ -87,7 +87,7 @@ def image_to_data_uri(path: str):
 
         return f"data:image/{f.name.split('.')[-1].replace('jpg', 'jpeg')};base64,{encrypt}"
 
-def paginate(text: str, max_len: 1980):
+def paginate(text: str, max_len: int)-> list:
     """
     Simple generator that paginates text.
 
