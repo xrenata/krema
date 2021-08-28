@@ -11,6 +11,14 @@
 ### Pip
 `pip install krema`
 
+## Frameworks
+<div align="left">
+
+- [**Kommand**:](https://github.com/kremayard/kommand) Command framework for Krema.
+- [**Klash**:](https://github.com/kremayard/klash) Slash command framework for Krema.
+
+</div>
+
 ## Example Ping-Pong Bot
 
 <div align="left">
@@ -35,19 +43,6 @@ async def message_create(message):
 
 client.start("client token", bot=True)
 ```
-
-</div>
-
-## Todo
-
-<div align="left">
-
-- [x] Add Gateway Support
-- [x] Add HTTP Support
-- [x] Add Event Handler
-- [x] Add Cache System
-- [X] Add Models
-- [X] Add Functions
 
 </div>
 
