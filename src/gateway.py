@@ -66,7 +66,6 @@ class Gateway:
 
         # Send Resume
         if self._session_id is not None:
-            # print("resume at kardes")
             await self.websocket.send_json({
                 "op": 6,
                 "d": {
@@ -124,7 +123,7 @@ class Gateway:
             self._seq = seq
 
         # print(self._seq, self._session_id, asyncio.all_tasks(self._event_loop))
-        # print(message, end="\n\n")
+        print(message, end="\n\n")
 
         if opcode == self.HELLO:
             interval = data["heartbeat_interval"]
@@ -133,8 +132,9 @@ class Gateway:
         elif opcode == self.DISPATCH:
             event_type = event_type.lower()
             if event_type in (i[0] for i in self.client.events):
-                self._event_loop.create_task(
-                    self.__handle_event(data, event_type))
+                # self._event_loop.create_task(
+                #    self.__handle_event(data, event_type))
+                await self.__handle_event(data, event_type)
 
         # Reconnect
         elif opcode == self.RECONNECT:
@@ -143,7 +143,6 @@ class Gateway:
     async def __handle_event(self, event_data, event_type):
         if event_type in ("message_create", "message_update"):
             if event_type == "message_update" and len(event_data) == 4:
-                # print("thread galiba bu")
                 return
 
             filtered = self.__filter_events(
@@ -219,5 +218,4 @@ class Gateway:
 
         # Reconnect
         if result == 1:
-            # print("reconnect.")
             await self.start_connection()
