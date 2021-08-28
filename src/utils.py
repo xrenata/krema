@@ -95,8 +95,8 @@ def paginate(text: str, max_len: int)-> list:
         text (str): string.
         max_len (int): How long after the text will be cut.
 
-    Return:
-        Array with fragmented text.
+    Returns:
+        list: Array with fragmented text.
     """
     last = 0
     pages = []
