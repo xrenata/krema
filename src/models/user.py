@@ -29,7 +29,8 @@ class User:
         email (str, None): User email.
         flags (int, None): the flags on the user account.
         premium_type (int, None): "the type of Nitro subscription on a user's account".
-        flags (int, None): the public flags on the user account.
+        flags (int, None): The public flags on the user account.
+        flags_dict (dict): Flags dictionary for calculating.
     """
 
     def __init__(self, client, data: dict) -> None:
@@ -51,6 +52,53 @@ class User:
         self.flags: Union[int, None] = data.get("flags")
         self.premium_type: Union[int, None] = data.get("premium_type")
         self.public_flags: Union[int, None] = data.get("public_flags")
+
+        self.flags_dict: dict = {
+            "DISCORD_EMPLOYEE": 1 << 0,
+            "PARTNERED_SERVER_OWNER": 1 << 1,
+            "HYPESQUAD_EVENTS": 1 << 2,
+            "BUG_HUNTER_LEVEL_1": 1 << 3,
+            "HOUSE_BRAVERY": 1 << 6,
+            "HOUSE_BRILLIANCE": 1 << 7,
+            "HOUSE_BALANCE": 1 << 8,
+            "EARLY_SUPPORTER": 1 << 9,
+            "TEAM_USER": 1 << 10,
+            "BUG_HUNTER_LEVEL_2": 1 << 14,
+            "VERIFIED_BOT": 1 << 16,
+            "EARLY_VERIFIED_BOT_DEVELOPER": 1 << 17,
+            "DISCORD_CERTIFIED_MODERATOR": 1 << 18
+        }
+
+    def has_public_flag(self, flag_name: str) -> bool:
+        """Check if user has a public flag named x.
+
+        Args:
+            flag_name: The flag name will be checked.
+
+        Returns:
+            bool: Result
+        """
+
+        if self.public_flags is None:
+            return False
+
+        for k, v in self.flags_dict.items():
+            if k.upper() == flag_name:
+                return self.public_flags & v != 0
+
+        return False
+
+    def list_public_flags(self) -> list:
+        """List flags for the user.
+
+        Returns:
+            list: Found public flags.
+        """
+
+        if self.public_flags is None:
+            return []
+
+        return [k for k, v in self.flags_dict.items() if self.public_flags & v != 0]
 
 
 @dataclass

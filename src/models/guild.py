@@ -640,18 +640,18 @@ class Role:
     """Role class.
 
     Args:
-        data (dict): Sent packet from websocket.
+        data (dict): Sent packet.
 
     Attributes:
-        id (int): Role ID.
+        id (int): Role id.
         name (str): Role name.
         color (int): Role color.
         hoist (bool): If this role is pinned in the user listing.
         position (int): Role position.
-        permissions (str): Permission bit set.
+        permissions (str): Role permissions bitvise value.
         managed (bool): Whether this role is managed by an integration.
         mentionable (bool): Whether this role is mentionable.
-        tags (dict, None): Role tags object.
+        tags (dict, None): The tags this role has.
     """
 
     def __init__(self, data: dict) -> None:
@@ -663,7 +663,7 @@ class Role:
         self.permissions: str = data.get("permissions")
         self.managed: bool = data.get("managed")
         self.mentionable: bool = data.get("mentionable")
-        self.tags: dict = data.get("tags")
+        self.tags: Union[dict, None] = data.get("tags")
 
 
 @dataclass
@@ -746,34 +746,3 @@ class IntegrationApplication:
         self.summary: str = data.get("summary")
         self.bot: Union[User, None] = User(client, data.get(
             "bot")) if data.get("bot") is not None else None
-
-
-@dataclass
-class Role:
-    """Role class.
-
-    Args:
-        data (dict): Sent packet.
-
-    Attributes:
-        id (int): Role id.
-        name (str): Role name.
-        color (int): Role color.
-        hoist (bool): If this role is pinned in the user listing.
-        position (int): Role position.
-        permissions (str): Role permissions bitvise value.
-        managed (bool): Whether this role is managed by an integration.
-        mentionable (bool): Whether this role is mentionable.
-        tags (dict, None): The tags this role has.
-    """
-
-    def __init__(self, data: dict) -> None:
-        self.id: int = int(data.get("id"))
-        self.name: str = data.get("name")
-        self.color: int = data.get("color")
-        self.hoist: bool = data.get("hoist")
-        self.position: int = data.get("position")
-        self.permissions: str = data.get("permissions")
-        self.managed: bool = data.get("managed")
-        self.mentionable: bool = data.get("mentionable")
-        self.tags: Union[dict, None] = data.get("tags")
