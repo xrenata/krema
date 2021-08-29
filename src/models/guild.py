@@ -49,8 +49,8 @@ class Guild:
         self.default_message_notifications: int = data.get(
             "default_message_notifications")
         self.explicit_content_filter: int = data.get("explicit_content_filter")
-        self.roles: list = data.get("roles")
-        self.emojis: list = data.get("emojis")
+        self.roles: list = [Role(i) for i in data.get("roles")]
+        self.emojis: list = [Emoji(self.client, i) for i in data.get("emojis")]
         self.features: list = data.get("features")
         self.mfa_level: int = data.get("mfa_level")
         self.application_id: Union[int, None] = int(
