@@ -14,10 +14,10 @@ class Permissions:
         bitvise (int): Bitvise permission.
         perms (dict): Permissions dictionary.
     """
-    
+
     def __init__(self, bitvise: Union[str, int]) -> None:
-        self.bitvise = int(bitvise)
-        self.perms = {
+        self.bitvise: int = int(bitvise)
+        self.perms: dict = {
             "CREATE_INSTANT_INVITE": 1 << 0,
             "KICK_MEMBERS": 1 << 1,
             "BAN_MEMBERS": 1 << 2,
@@ -56,3 +56,63 @@ class Permissions:
             "USE_PRIVATE_THREADS": 1 << 36,
             "USE_EXTERNAL_STICKERS": 1 << 37
         }
+
+    def __str__(self) -> str:
+        return str(self.list_permissions())
+
+    def __bool__(self) -> bool:
+        return self.bitvise != 0
+
+    def __len__(self) -> int:
+        return len(self.list_permissions())
+
+    def __and__(self, item) -> int:
+        return self.bitvise & item
+
+    def __or__(self, item) -> int:
+        return self.bitvise | item
+
+    def __xor__(self, item) -> int:
+        return self.bitvise ^ item
+
+    def calculate(self, *args: str) -> int:
+        """Calculate permissions and return the result.
+
+        Args:
+            *args (str): The permission name(s) will be calculated.
+
+        Returns:
+            int: Result.
+        """
+        result = 0
+
+        for k, v in self.perms.items():
+            if k.upper() in args:
+                result = result | v
+
+        return result
+
+    def list_permissions(self) -> list:
+        """Calculate and return list of permissions for bitvise.
+
+        Returns:
+            list: List of permissions for bitvise.
+        """
+
+        return [k for k, v in self.perms.items() if self.bitvise & v != 0]
+
+    def has(self, permission_name: str) -> bool:
+        """Check if permission includes the x.
+
+        Args:
+            permission_name (str): The permission name will be checked.
+
+        Returns:
+            bool: Result.
+        """
+
+        for k, v in self.perms.items():
+            if k.upper() == permission_name:
+                return self.bitvise & v != 0
+
+        return False
