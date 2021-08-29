@@ -15,7 +15,7 @@
 <div align="left">
 
 - [**Kommand**:](https://github.com/kremayard/kommand) Command framework for Krema.
-- [**Klash**:](https://github.com/kremayard/klash) Slash command framework for Krema.
+- [**Klash**:](https://github.com/kremayard/klash) Application command framework for Krema.
 
 </div>
 
