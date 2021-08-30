@@ -579,6 +579,31 @@ class Guild:
         result = await self.client.http.request("GET", f"/guilds/{self.id}/vanity-url")
         return Invite(self.client, result)
 
+    async def fetch_prune_count(self, **kwargs) -> int:
+        """Fetch guild prune count.
+        
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/guild#get-guild-prune-count-query-string-params.
+
+        Returns:
+            int: Total kickable user count.
+        """
+
+        result = await self.client.http.request("GET", f"/guilds/{self.id}/prune{dict_to_query(kwargs)}")
+        return result.get("pruned")
+
+    async def prune(self, **kwargs) -> int:
+        """Begin guild prune.
+        
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/guild#begin-guild-prune-json-params.
+
+        Returns:
+            int: Total kicked user count.
+        """
+
+        result = await self.client.http.request("POST", f"/guilds/{self.id}/prune", json=kwargs)
+        return result.get("pruned")
 
 @dataclass
 class Emoji:
