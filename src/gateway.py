@@ -11,8 +11,7 @@ import sys
 
 import aiohttp
 
-from .models import Message, Channel, Guild
-from .models import Interaction, ApplicationCommand, User
+from .models import Interaction, ApplicationCommand, User, Message, Channel, Guild, Role, Emoji, Sticker, Member
 
 
 class Gateway:
@@ -172,9 +171,40 @@ class Gateway:
             filtered = self.__filter_events(
                 event_type, (ApplicationCommand(self.client, event_data),))
         elif event_type in ("guild_ban_add", "guild_ban_remove"):
-            event_data["user"] = User(self.client, event_data.get(
-                "user")) if event_data.get("user") else None
-            filtered = self.__filter_events(event_type, (event_data,))
+            guild_id = int(event_data.get("guild_id")) if event_data.get("guild_id") else None
+            usr_obj = User(self.client, event_data.get("user")) if event_data.get("user") else None
+            filtered = self.__filter_events(event_type, (guild_id, usr_obj, ))
+        elif event_type in ("guild_emojis_update", ):
+            guild_id = int(event_data["guild_id"]) if event_data.get("guild_id") else None
+            emojis_obj = [Emoji(self.client, i) for i in event_data["emojis"]] if event_data.get("emojis") else None
+            filtered = self.__filter_events(event_type, (guild_id, emojis_obj, ))
+        elif event_type in ("guild_stickers_update", ):
+            guild_id = int(event_data["guild_id"]) if event_data.get("guild_id") else None
+            stickers_obj = [Sticker(self.client, i) for i in event_data["stickers"]] if event_data.get("stickers") else None
+            filtered = self.__filter_events(event_type, (guild_id, stickers_obj, ))
+        elif event_type in ("guild_integration_update", ):
+            guild_id = int(event_data["guild_id"]) if event_data.get("guild_id") else None
+            filtered = self.__filter_events(event_type, (guild_id, ))
+        elif event_type in ("guild_member_add", "guild_member_update", ):
+            guild_id = int(event_data["guild_id"]) if event_data.get("guild_id") else None
+
+            del event_data["guild_id"]
+            member_obj = Member(self.client, event_data)
+
+            filtered = self.__filter_events(event_type, (guild_id, member_obj, ))
+        elif event_type in ("guild_member_remove", ):
+            guild_id = int(event_data["guild_id"]) if event_data.get("guild_id") else None
+            usr_obj = User(self.client, event_data["user"]) if event_data.get("user") else None
+
+            filtered = self.__filter_events(event_type, (guild_id, usr_obj, ))
+        elif event_type in ("guild_role_create", "guild_role_update", ):
+            guild_id = int(event_data["guild_id"]) if event_data.get("guild_id") else None
+            role_obj = Role(event_data["role"]) if event_data.get("role") else None
+            filtered = self.__filter_events(event_type, (guild_id, role_obj, ))
+        elif event_type in ("guild_role_delete", ):
+            guild_id = int(event_data["guild_id"]) if event_data.get("guild_id") else None
+            role_id = int(event_data["role_id"]) if event_data.get("role_id") else None
+            filtered = self.__filter_events(event_type, (guild_id, role_id, ))
         else:
             filtered = self.__filter_events(event_type, (event_data,))
 
