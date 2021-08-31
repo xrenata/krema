@@ -4,6 +4,7 @@ Gateway part of the krema.
 
 import asyncio
 from json import loads
+from src.models.guild import Integration
 from typing import Union
 from zlib import decompressobj
 import traceback
@@ -205,6 +206,18 @@ class Gateway:
             guild_id = int(event_data["guild_id"]) if event_data.get("guild_id") else None
             role_id = int(event_data["role_id"]) if event_data.get("role_id") else None
             filtered = self.__filter_events(event_type, (guild_id, role_id, ))
+        elif event_type in ("integration_create", "integration_update", ):
+            guild_id = int(event_data["guild_id"]) if event_data.get("guild_id") else None
+
+            del event_data["guild_id"]
+            integration_obj = Integration(self.client, event_data)
+            filtered = self.__filter_events(event_type, (guild_id, integration_obj, ))
+        elif event_type in ("integration_delete", ):
+            integration_id = int(event_data["id"]) if event_data.get("id") else None
+            guild_id = int(event_data["guild_id"]) if event_data.get("guild_id") else None
+            application_id = int(event_data["application_id"]) if event_data.get("application_id") else None
+
+            filtered = self.__filter_events(event_type, (integration_id, guild_id, application_id, ))
         else:
             filtered = self.__filter_events(event_type, (event_data,))
 
