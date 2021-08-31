@@ -4,7 +4,6 @@ Gateway part of the krema.
 
 import asyncio
 from json import loads
-from src.models.guild import Integration
 from typing import Union
 from zlib import decompressobj
 import traceback
@@ -12,7 +11,7 @@ import sys
 
 import aiohttp
 
-from .models import Interaction, ApplicationCommand, User, Message, Channel, Guild, Role, Emoji, Sticker, Member
+from .models import Interaction, ApplicationCommand, User, Message, Channel, Guild, Role, Emoji, Sticker, Member, Integration
 
 
 class Gateway:
