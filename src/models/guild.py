@@ -605,6 +605,19 @@ class Guild:
         result = await self.client.http.request("POST", f"/guilds/{self.id}/prune", json=kwargs)
         return result.get("pruned")
 
+    async def fetch_audit_logs(self, **kwargs):
+        """Fetch audit logs.
+
+        Args:
+            **kwargs: https://discord.com/developers/docs/resources/audit-log#get-guild-audit-log-query-string-params.
+
+        Returns:
+            AuditLog: Results.
+        """
+
+        result = await self.client.http.request("GET", f"/guilds/{self.id}/audit-logs{dict_to_query(kwargs)}")
+        return AuditLog(self.client, result)
+
 
 @dataclass
 class Emoji:
@@ -801,7 +814,8 @@ class AuditLog:
         self.integrations: list = [Integration(
             client, i) for i in data.get("integrations")]
         self.threads: list = [Channel(client, i) for i in data.get("threads")]
-        self.entries: list = [AuditLogEntry(i) for i in data.get("entries")]
+        self.entries: list = [AuditLogEntry(i)
+                              for i in data.get("audit_log_entries")]
 
 
 @dataclass
