@@ -581,7 +581,7 @@ class Guild:
 
     async def fetch_prune_count(self, **kwargs) -> int:
         """Fetch guild prune count.
-        
+
         Args:
             **kwargs: https://discord.com/developers/docs/resources/guild#get-guild-prune-count-query-string-params.
 
@@ -594,7 +594,7 @@ class Guild:
 
     async def prune(self, **kwargs) -> int:
         """Begin guild prune.
-        
+
         Args:
             **kwargs: https://discord.com/developers/docs/resources/guild#begin-guild-prune-json-params.
 
@@ -604,6 +604,7 @@ class Guild:
 
         result = await self.client.http.request("POST", f"/guilds/{self.id}/prune", json=kwargs)
         return result.get("pruned")
+
 
 @dataclass
 class Emoji:
@@ -771,3 +772,62 @@ class IntegrationApplication:
         self.summary: str = data.get("summary")
         self.bot: Union[User, None] = User(client, data.get(
             "bot")) if data.get("bot") is not None else None
+
+
+@dataclass
+class AuditLog:
+    """Audit log class.
+
+    Args:
+        client (Client): Krema client.
+        data (dict): Sent packet.
+
+    Attributes:
+        webhooks (list): List of webhooks found in the audit log.
+        users (list): List of users found in the audit log.
+        integrations (list): List of integrations found in the audit log.
+        threads (list): List of threads (channels) found in the audit log.
+        entries (list): List of audit log entries.
+    """
+
+    def __init__(self, client, data: dict) -> None:
+        from .webhook import Webhook
+        from .user import User
+        from .channel import Channel
+
+        self.webhooks: list = [Webhook(client, i)
+                               for i in data.get("webhooks")]
+        self.users: list = [User(client, i) for i in data.get("users")]
+        self.integrations: list = [Integration(
+            client, i) for i in data.get("integrations")]
+        self.threads: list = [Channel(client, i) for i in data.get("threads")]
+        self.entries: list = [AuditLogEntry(i) for i in data.get("entries")]
+
+
+@dataclass
+class AuditLogEntry:
+    """Audit log entry class.
+
+    Args:
+        data (dict): Sent packet.
+
+    Attributes:
+        target_id (int, None): Id of the affected entity.
+        changes	(list, None): Changes made to the target_id.
+        user_id	(int, None): The user who made the changes.
+        id (int): Id of the entry.
+        action_type	(int): Type of action that occurred.
+        options (dict, None) Additional info for certain action types.
+        reason (str): The reason for the change.
+    """
+
+    def __init__(self, data: dict) -> None:
+        self.target_id: Union[int, None] = int(
+            data.get("target_id")) if data.get("target_id") else None
+        self.changes: Union[list, None] = data.get("changes")
+        self.user_id: Union[int, None] = int(
+            data.get("user_id")) if data.get("user_id") else None
+        self.id: int = int(data.get("id"))
+        self.action_type: int = data.get("action_type")
+        self.options: Union[dict, None] = data.get("options")
+        self.reason: Union[str, None] = data.get("reason")
