@@ -3,7 +3,6 @@ Http part of the krema.
 """
 
 import asyncio
-import json
 from typing import Union
 import aiohttp
 from .errors import *

@@ -91,7 +91,7 @@ class EmbedBuilder:
         self.author = {}
 
         if "text" in kwargs:
-            self.author["text"] = kwargs["name"]
+            self.author["name"] = kwargs["text"]
 
         if "icon_url" in kwargs:
             self.author["icon_url"] = kwargs["icon_url"]
